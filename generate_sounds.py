@@ -58,15 +58,80 @@ def gen_chime():
         samples.append(env * math.sin(2 * math.pi * 783.99 * i / sr))
     generate_wav('sound_chime.wav', samples)
 
+def gen_siren():
+    sr = 8000
+    samples = []
+    for i in range(int(sr * 2.0)):
+        freq = 600 + 200 * math.sin(2 * math.pi * 2 * i / sr)
+        samples.append(0.5 * math.sin(2 * math.pi * freq * i / sr))
+    generate_wav('sound_siren.wav', samples)
+
+def gen_doorbell():
+    sr = 8000
+    samples = []
+    # Note 1
+    for i in range(int(sr * 0.4)):
+        env = math.exp(-i / (sr * 0.2))
+        samples.append(env * math.sin(2 * math.pi * 700 * i / sr))
+    # Note 2
+    for i in range(int(sr * 0.8)):
+        env = math.exp(-i / (sr * 0.3))
+        samples.append(env * math.sin(2 * math.pi * 550 * i / sr))
+    generate_wav('sound_doorbell.wav', samples)
+
+def gen_notification():
+    sr = 8000
+    samples = []
+    for i in range(int(sr * 0.2)):
+        env = math.exp(-i / (sr * 0.1))
+        samples.append(env * math.sin(2 * math.pi * 880 * i / sr))
+    for i in range(int(sr * 0.4)):
+        env = math.exp(-i / (sr * 0.2))
+        samples.append(env * math.sin(2 * math.pi * 1100 * i / sr))
+    generate_wav('sound_notification.wav', samples)
+
+def gen_error():
+    sr = 8000
+    samples = []
+    for i in range(int(sr * 0.3)):
+        samples.append(0.5 * math.sin(2 * math.pi * 300 * i / sr))
+    for i in range(int(sr * 0.1)):
+        samples.append(0.0)
+    for i in range(int(sr * 0.6)):
+        samples.append(0.5 * math.sin(2 * math.pi * 250 * i / sr))
+    generate_wav('sound_error.wav', samples)
+
+def gen_success():
+    sr = 8000
+    samples = []
+    for i in range(int(sr * 0.2)):
+        env = math.exp(-i / (sr * 0.1))
+        samples.append(env * math.sin(2 * math.pi * 500 * i / sr))
+    for i in range(int(sr * 0.2)):
+        env = math.exp(-i / (sr * 0.1))
+        samples.append(env * math.sin(2 * math.pi * 700 * i / sr))
+    for i in range(int(sr * 0.5)):
+        env = math.exp(-i / (sr * 0.2))
+        samples.append(env * math.sin(2 * math.pi * 1000 * i / sr))
+    generate_wav('sound_success.wav', samples)
+
 gen_dingdong()
 gen_trill()
 gen_sweep()
 gen_beep()
 gen_chime()
+gen_siren()
+gen_doorbell()
+gen_notification()
+gen_error()
+gen_success()
 
 import os
 def wav_to_h():
-    files = ['sound_dingdong.wav', 'sound_trill.wav', 'sound_sweep.wav', 'sound_beep.wav', 'sound_chime.wav']
+    files = [
+        'sound_dingdong.wav', 'sound_trill.wav', 'sound_sweep.wav', 'sound_beep.wav', 'sound_chime.wav',
+        'sound_siren.wav', 'sound_doorbell.wav', 'sound_notification.wav', 'sound_error.wav', 'sound_success.wav'
+    ]
     out = "#pragma once\n#include <pgmspace.h>\n\n"
     for f in files:
         with open(f, 'rb') as w:
