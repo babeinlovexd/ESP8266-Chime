@@ -1,6 +1,7 @@
 #include "esp8266_chime.h"
 #include "esphome/core/log.h"
 #include "sounds.h"
+#include <Arduino.h>
 
 namespace esphome {
 namespace esp8266_chime {
@@ -15,110 +16,209 @@ void Esp8266Chime::setup() {
     this->sd_pin_->digital_write(true); // HIGH = mute LM4871
   }
 
-  this->wav_ = new AudioGeneratorWAV();
-  this->out_ = new AudioOutputI2S();
-
-  // On ESP8266, I2S pins are fixed in hardware: BCLK=15, WS=2, DOUT=3
-  // SetPinout is not supported/needed on this architecture.
+#ifdef USE_ESP8266
+  i2s_begin();
+  i2s_set_rate(8000);
+#endif
 
   // Set default volume
   this->current_volume_ = 1.0;
-  if (this->volume_number_ != nullptr) {
-    this->volume_number_->publish_state(100.0);
+  if (this->chime_volume_number_ != nullptr) {
+    this->chime_volume_number_->publish_state(100.0);
+  }
+  if (this->chime_reps_number_ != nullptr) {
+    this->chime_reps_number_->publish_state(1.0);
+  }
+  if (this->chime_sound_select_ != nullptr) {
+      if (this->chime_sound_select_->traits.get_options().size() > 0) {
+          this->chime_sound_select_->publish_state(this->chime_sound_select_->traits.get_options()[0]);
+      }
   }
 
-  if (this->sound_select_ != nullptr) {
-      if (this->sound_select_->traits.get_options().size() > 0) {
-          this->sound_select_->publish_state(this->sound_select_->traits.get_options()[0]);
+  if (this->alarm_volume_number_ != nullptr) {
+    this->alarm_volume_number_->publish_state(100.0);
+  }
+  if (this->alarm_sound_select_ != nullptr) {
+      if (this->alarm_sound_select_->traits.get_options().size() > 0) {
+          this->alarm_sound_select_->publish_state(this->alarm_sound_select_->traits.get_options()[0]);
       }
   }
 }
 
 void Esp8266Chime::loop() {
-  if (this->is_playing_) {
-    if (this->wav_ && this->wav_->isRunning()) {
-      if (!this->wav_->loop()) {
-        this->stop();
+#ifdef USE_ESP8266
+  if (this->state_ == ChimeState::PLAYING_CHIME || this->state_ == ChimeState::PLAYING_ALARM) {
+    if (this->current_data_ != nullptr && this->current_pos_ < this->current_len_) {
+      // Feed I2S FIFO as much as possible without blocking
+      while (this->current_pos_ < this->current_len_) {
+        // Read 16-bit sample from PROGMEM
+        int16_t sample = (int16_t)(
+            pgm_read_byte(&this->current_data_[this->current_pos_]) |
+            (pgm_read_byte(&this->current_data_[this->current_pos_ + 1]) << 8)
+        );
+
+        // Apply volume
+        sample = (int16_t)(sample * this->current_volume_);
+
+        // The DAC PT8211 needs stereo data, so we combine L and R into one 32-bit sample
+        // Left channel in lower 16 bits, Right channel in upper 16 bits.
+        uint32_t stereo_sample = ((uint32_t)(uint16_t)sample << 16) | (uint16_t)sample;
+        // ESP8266 i2s_write_sample_nb returns true if it fits in the buffer
+        if (i2s_write_sample_nb(stereo_sample)) {
+            this->current_pos_ += 2;
+        } else {
+            // Buffer full, come back next loop
+            break;
+        }
       }
-    } else {
-      this->stop();
+
+      if (this->current_pos_ >= this->current_len_) {
+        // Sound finished
+        if (this->state_ == ChimeState::PLAYING_CHIME) {
+          this->current_rep_++;
+          if (this->current_rep_ < this->target_reps_) {
+            // Replay
+            this->play_internal(this->current_sound_);
+          } else {
+            // Done
+            this->stop();
+          }
+        } else if (this->state_ == ChimeState::PLAYING_ALARM) {
+          // Alarm loops endlessly until switch is toggled off
+          this->play_internal(this->current_sound_);
+        }
+      }
     }
   }
+#endif
 }
 
-void Esp8266Chime::play() {
-  this->stop();
-
-  if (this->sound_select_ == nullptr) {
-    ESP_LOGW(TAG, "No sound selected");
+void Esp8266Chime::play_chime() {
+  if (this->state_ == ChimeState::PLAYING_ALARM) {
+    ESP_LOGI(TAG, "Alarm is active. Chime request ignored.");
     return;
   }
 
-  std::string selected = this->sound_select_->state;
-  const unsigned char *data = nullptr;
-  unsigned int len = 0;
+  this->stop();
+
+  if (this->chime_sound_select_ == nullptr || this->chime_reps_number_ == nullptr || this->chime_volume_number_ == nullptr) {
+    ESP_LOGW(TAG, "Chime components not fully configured");
+    return;
+  }
+
+  this->target_reps_ = (int)this->chime_reps_number_->state;
+  this->current_rep_ = 0;
+
+  if (this->chime_sound_select_->has_state()) {
+      this->current_sound_ = this->chime_sound_select_->state;
+  } else {
+      this->current_sound_ = this->chime_sound_select_->traits.get_options()[0];
+  }
+
+  this->set_volume(this->chime_volume_number_->state / 100.0f);
+  this->state_ = ChimeState::PLAYING_CHIME;
+
+  this->play_internal(this->current_sound_);
+}
+
+void Esp8266Chime::play_alarm() {
+  this->stop();
+
+  if (this->alarm_sound_select_ == nullptr || this->alarm_volume_number_ == nullptr) {
+    ESP_LOGW(TAG, "Alarm components not fully configured");
+    return;
+  }
+
+  if (this->alarm_sound_select_->has_state()) {
+      this->current_sound_ = this->alarm_sound_select_->state;
+  } else {
+      this->current_sound_ = this->alarm_sound_select_->traits.get_options()[0];
+  }
+
+  this->set_volume(this->alarm_volume_number_->state / 100.0f);
+  this->state_ = ChimeState::PLAYING_ALARM;
+
+  this->play_internal(this->current_sound_);
+}
+
+void Esp8266Chime::play_internal(const std::string& selected) {
+  this->current_data_ = nullptr;
+  this->current_len_ = 0;
+  this->current_pos_ = 0;
 
   if (selected == "1. Ding Dong") {
-    data = sound_dingdong;
-    len = sound_dingdong_len;
+    this->current_data_ = sound_dingdong;
+    this->current_len_ = sound_dingdong_len;
   } else if (selected == "2. Trill Alarm") {
-    data = sound_trill;
-    len = sound_trill_len;
+    this->current_data_ = sound_trill;
+    this->current_len_ = sound_trill_len;
   } else if (selected == "3. Sweep Sound") {
-    data = sound_sweep;
-    len = sound_sweep_len;
+    this->current_data_ = sound_sweep;
+    this->current_len_ = sound_sweep_len;
   } else if (selected == "4. Solid Beep") {
-    data = sound_beep;
-    len = sound_beep_len;
+    this->current_data_ = sound_beep;
+    this->current_len_ = sound_beep_len;
   } else if (selected == "5. G5 Chime") {
-    data = sound_chime;
-    len = sound_chime_len;
+    this->current_data_ = sound_chime;
+    this->current_len_ = sound_chime_len;
+  } else if (selected == "6. Siren") {
+    this->current_data_ = sound_siren;
+    this->current_len_ = sound_siren_len;
+  } else if (selected == "7. Doorbell") {
+    this->current_data_ = sound_doorbell;
+    this->current_len_ = sound_doorbell_len;
+  } else if (selected == "8. Notification") {
+    this->current_data_ = sound_notification;
+    this->current_len_ = sound_notification_len;
+  } else if (selected == "9. Error") {
+    this->current_data_ = sound_error;
+    this->current_len_ = sound_error_len;
+  } else if (selected == "10. Success") {
+    this->current_data_ = sound_success;
+    this->current_len_ = sound_success_len;
   } else {
     ESP_LOGE(TAG, "Unknown sound selected: %s", selected.c_str());
+    this->state_ = ChimeState::IDLE;
     return;
+  }
+
+  // Skip the standard 44 byte WAV header assuming 16-bit Mono 8000Hz PCM
+  if (this->current_len_ > 44) {
+      this->current_pos_ = 44;
   }
 
   ESP_LOGD(TAG, "Playing sound: %s", selected.c_str());
 
   if (this->sd_pin_ != nullptr) {
     this->sd_pin_->digital_write(false); // LOW = enable amplifier
+    // Only delay if we are just starting from IDLE/stop, otherwise it might click between loops.
+    // However, 50ms delay pop protection is requested.
     delay(50); // 50ms delay
   }
+}
 
-  this->in_ = new AudioFileSourcePROGMEM(data, len);
-
-  this->out_->SetGain(this->current_volume_);
-
-  if (this->wav_->begin(this->in_, this->out_)) {
-    this->is_playing_ = true;
+void Esp8266Chime::handle_alarm_switch(bool state) {
+  if (state) {
+    this->play_alarm();
   } else {
-    ESP_LOGE(TAG, "Failed to begin WAV playback");
     this->stop();
   }
 }
 
 void Esp8266Chime::stop() {
-  if (this->wav_ && this->wav_->isRunning()) {
-    this->wav_->stop();
-  }
-
-  if (this->in_) {
-    delete this->in_;
-    this->in_ = nullptr;
-  }
+  this->current_data_ = nullptr;
+  this->current_len_ = 0;
+  this->current_pos_ = 0;
 
   if (this->sd_pin_ != nullptr) {
     this->sd_pin_->digital_write(true); // HIGH = mute amplifier
   }
 
-  this->is_playing_ = false;
+  this->state_ = ChimeState::IDLE;
 }
 
 void Esp8266Chime::set_volume(float volume) {
   this->current_volume_ = volume;
-  if (this->out_) {
-    this->out_->SetGain(this->current_volume_);
-  }
 }
 
 // ------------------------------------------
@@ -126,8 +226,12 @@ void Esp8266Chime::set_volume(float volume) {
 void Esp8266ChimeVolumeNumber::control(float value) {
   this->publish_state(value);
   if (this->parent_) {
-    this->parent_->set_volume(value / 100.0f);
+    // Volume takes effect on next played sound
   }
+}
+
+void Esp8266ChimeRepsNumber::control(float value) {
+  this->publish_state(value);
 }
 
 void Esp8266ChimeSoundSelect::control(const std::string &value) {
@@ -136,7 +240,22 @@ void Esp8266ChimeSoundSelect::control(const std::string &value) {
 
 void Esp8266ChimePlayButton::press_action() {
   if (this->parent_) {
-    this->parent_->play();
+    this->parent_->play_chime();
+  }
+}
+
+void Esp8266AlarmVolumeNumber::control(float value) {
+  this->publish_state(value);
+}
+
+void Esp8266AlarmSoundSelect::control(const std::string &value) {
+  this->publish_state(value);
+}
+
+void Esp8266AlarmLoopSwitch::write_state(bool state) {
+  this->publish_state(state);
+  if (this->parent_) {
+    this->parent_->handle_alarm_switch(state);
   }
 }
 
