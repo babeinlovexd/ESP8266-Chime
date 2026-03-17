@@ -12,10 +12,10 @@ def generate_tone(filename, frequency1, frequency2=None, pattern="solid"):
         wav_file.setnchannels(1) # mono
         wav_file.setsampwidth(1) # 8-bit unsigned
         wav_file.setframerate(SAMPLE_RATE)
-
+        
         for i in range(int(SAMPLE_RATE * DURATION)):
             t = float(i) / SAMPLE_RATE
-
+            
             # Simple patterns
             if pattern == "dingdong":
                 freq = frequency1 if t < DURATION/2 else frequency2
@@ -29,24 +29,24 @@ def generate_tone(filename, frequency1, frequency2=None, pattern="solid"):
             else:
                 freq = frequency1
                 vol = 1.0 - (t / DURATION)
-
+            
             # Sine wave
             value = math.sin(2.0 * math.pi * freq * t) * vol
-
+            
             # Convert to 8-bit unsigned (0-255)
             sample = int((value + 1.0) * 127.5)
             sample = max(0, min(255, sample))
-
+            
             data = struct.pack('<B', sample)
             wav_file.writeframesraw(data)
 
 def generate_header(filename, varname):
     wav_path = os.path.join("Sounds", filename + ".wav")
     h_path = os.path.join("Sounds", filename + ".h")
-
+    
     with open(wav_path, "rb") as f:
         data = f.read()
-
+        
     with open(h_path, "w") as f:
         f.write(f"#pragma once\n\n")
         f.write(f"#include <pgmspace.h>\n\n")
