@@ -42,8 +42,9 @@ Die Einbindung in deiner YAML bleibt erfreulich minimalistisch. Binde die Kompon
 ```yaml
 external_components:
   - source:
-      type: local
-      path: components
+      type: git
+      url: https://github.com/babeinlovexd/ESP8266-Chime
+      ref: main
 
 esp8266_chime:
   id: my_chime
