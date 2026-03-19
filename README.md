@@ -22,6 +22,7 @@ Dieses Plugin ist auf absolute Zuverlässigkeit und minimalen Aufwand ausgelegt:
 
 ---
 
+
 ## ✨ Automatisch erzeugte Entitäten in Home Assistant
 
 Sobald das Gerät geflasht und mit Home Assistant verbunden ist, werden folgende 7 Entitäten vollautomatisch erzeugt und miteinander verknüpft:
