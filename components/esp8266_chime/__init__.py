@@ -15,10 +15,24 @@ CONF_WS = "ws"
 CONF_DOUT = "dout"
 CONF_SD = "sd"
 
-from . import number as esp8266_chime_number
-from . import select as esp8266_chime_select
-from . import button as esp8266_chime_button
-from . import switch as esp8266_chime_switch
+CONF_CHIME_VOLUME = "chime_volume"
+CONF_CHIME_REPS = "chime_reps"
+CONF_ALARM_VOLUME = "alarm_volume"
+CONF_CHIME_SOUND = "chime_sound"
+CONF_ALARM_SOUND = "alarm_sound"
+CONF_CHIME_PLAY = "chime_play"
+CONF_ALARM_LOOP = "alarm_loop"
+
+Esp8266ChimeVolumeNumber = esp8266_chime_ns.class_("Esp8266ChimeVolumeNumber", number.Number, cg.Component)
+Esp8266ChimeRepsNumber = esp8266_chime_ns.class_("Esp8266ChimeRepsNumber", number.Number, cg.Component)
+Esp8266AlarmVolumeNumber = esp8266_chime_ns.class_("Esp8266AlarmVolumeNumber", number.Number, cg.Component)
+
+Esp8266ChimeSoundSelect = esp8266_chime_ns.class_("Esp8266ChimeSoundSelect", select.Select, cg.Component)
+Esp8266AlarmSoundSelect = esp8266_chime_ns.class_("Esp8266AlarmSoundSelect", select.Select, cg.Component)
+
+Esp8266ChimePlayButton = esp8266_chime_ns.class_("Esp8266ChimePlayButton", button.Button, cg.Component)
+
+Esp8266AlarmLoopSwitch = esp8266_chime_ns.class_("Esp8266AlarmLoopSwitch", switch.Switch, cg.Component)
 
 CONFIG_SCHEMA = cv.Schema(
     {
@@ -27,19 +41,19 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Required(CONF_WS): pins.internal_gpio_output_pin_schema,
         cv.Required(CONF_DOUT): pins.internal_gpio_output_pin_schema,
         cv.Required(CONF_SD): pins.gpio_output_pin_schema,
+
+        cv.Optional(CONF_CHIME_VOLUME, default={"name": "Chime Lautstärke"}): number.number_schema(Esp8266ChimeVolumeNumber).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_CHIME_REPS, default={"name": "Chime Wiederholungen"}): number.number_schema(Esp8266ChimeRepsNumber).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_ALARM_VOLUME, default={"name": "Alarm Lautstärke"}): number.number_schema(Esp8266AlarmVolumeNumber).extend(cv.COMPONENT_SCHEMA),
+
+        cv.Optional(CONF_CHIME_SOUND, default={"name": "Chime Ton"}): select.select_schema(Esp8266ChimeSoundSelect).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_ALARM_SOUND, default={"name": "Alarm Ton"}): select.select_schema(Esp8266AlarmSoundSelect).extend(cv.COMPONENT_SCHEMA),
+
+        cv.Optional(CONF_CHIME_PLAY, default={"name": "Chime Abspielen"}): button.button_schema(Esp8266ChimePlayButton).extend(cv.COMPONENT_SCHEMA),
+
+        cv.Optional(CONF_ALARM_LOOP, default={"name": "Alarm Loop"}): switch.switch_schema(Esp8266AlarmLoopSwitch).extend(cv.COMPONENT_SCHEMA),
     }
 ).extend(cv.COMPONENT_SCHEMA)
-
-from .number import CONFIG_SCHEMA as NUMBER_SCHEMA
-from .select import CONFIG_SCHEMA as SELECT_SCHEMA
-from .button import CONFIG_SCHEMA as BUTTON_SCHEMA
-from .switch import CONFIG_SCHEMA as SWITCH_SCHEMA
-
-# Merge schemas from sub-components to allow them at the root component level
-CONFIG_SCHEMA = CONFIG_SCHEMA.extend(NUMBER_SCHEMA)
-CONFIG_SCHEMA = CONFIG_SCHEMA.extend(SELECT_SCHEMA)
-CONFIG_SCHEMA = CONFIG_SCHEMA.extend(BUTTON_SCHEMA)
-CONFIG_SCHEMA = CONFIG_SCHEMA.extend(SWITCH_SCHEMA)
 
 MULTI_CONF = True
 
@@ -60,12 +74,57 @@ async def to_code(config):
     sd_pin = await cg.gpio_pin_expression(config[CONF_SD])
     cg.add(var.set_sd_pin(sd_pin))
 
-    # We need to manually set esp8266_chime_id to point to var because we
-    # merged the schemas and don't require the user to specify it.
-    config_copy = dict(config)
-    config_copy["esp8266_chime_id"] = config[CONF_ID]
+    # Number Entities
+    conf = config[CONF_CHIME_VOLUME]
+    n_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(n_var, conf)
+    await number.register_number(n_var, conf, min_value=0, max_value=100, step=1)
+    cg.add(n_var.set_parent(var))
+    cg.add(var.set_chime_volume_number(n_var))
 
-    await esp8266_chime_number.to_code(config_copy)
-    await esp8266_chime_select.to_code(config_copy)
-    await esp8266_chime_button.to_code(config_copy)
-    await esp8266_chime_switch.to_code(config_copy)
+    conf = config[CONF_CHIME_REPS]
+    n_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(n_var, conf)
+    await number.register_number(n_var, conf, min_value=1, max_value=5, step=1)
+    cg.add(n_var.set_parent(var))
+    cg.add(var.set_chime_reps_number(n_var))
+
+    conf = config[CONF_ALARM_VOLUME]
+    n_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(n_var, conf)
+    await number.register_number(n_var, conf, min_value=0, max_value=100, step=1)
+    cg.add(n_var.set_parent(var))
+    cg.add(var.set_alarm_volume_number(n_var))
+
+    # Select Entities
+    options = ["1. Ding Dong", "2. Trill Alarm", "3. Sweep Sound", "4. Solid Beep", "5. G5 Chime", "6. Siren", "7. Doorbell", "8. Notification", "9. Error", "10. Success"]
+
+    conf = config[CONF_CHIME_SOUND]
+    s_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(s_var, conf)
+    await select.register_select(s_var, conf, options=options)
+    cg.add(s_var.set_parent(var))
+    cg.add(var.set_chime_sound_select(s_var))
+
+    conf = config[CONF_ALARM_SOUND]
+    s_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(s_var, conf)
+    await select.register_select(s_var, conf, options=options)
+    cg.add(s_var.set_parent(var))
+    cg.add(var.set_alarm_sound_select(s_var))
+
+    # Button Entity
+    conf = config[CONF_CHIME_PLAY]
+    b_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(b_var, conf)
+    await button.register_button(b_var, conf)
+    cg.add(b_var.set_parent(var))
+    cg.add(var.set_chime_play_button(b_var))
+
+    # Switch Entity
+    conf = config[CONF_ALARM_LOOP]
+    sw_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(sw_var, conf)
+    await switch.register_switch(sw_var, conf)
+    cg.add(sw_var.set_parent(var))
+    cg.add(var.set_alarm_loop_switch(sw_var))
