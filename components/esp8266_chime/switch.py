@@ -13,7 +13,7 @@ Esp8266AlarmLoopSwitch = esp8266_chime_ns.class_("Esp8266AlarmLoopSwitch", switc
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(CONF_ESP8266_CHIME_ID): cv.use_id(Esp8266Chime),
-        cv.Optional(CONF_ALARM_LOOP, default={"name": "Alarm Loop"}): switch.switch_schema(Esp8266AlarmLoopSwitch).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_ALARM_LOOP): switch.switch_schema(Esp8266AlarmLoopSwitch).extend(cv.COMPONENT_SCHEMA),
     }
 )
 

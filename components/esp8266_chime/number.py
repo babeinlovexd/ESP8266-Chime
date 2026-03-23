@@ -18,9 +18,9 @@ Esp8266AlarmVolumeNumber = esp8266_chime_ns.class_("Esp8266AlarmVolumeNumber", n
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(CONF_ESP8266_CHIME_ID): cv.use_id(Esp8266Chime),
-        cv.Optional(CONF_CHIME_VOLUME, default={"name": "Chime Lautstärke"}): number.number_schema(Esp8266ChimeVolumeNumber).extend(cv.COMPONENT_SCHEMA),
-        cv.Optional(CONF_CHIME_REPS, default={"name": "Chime Wiederholungen"}): number.number_schema(Esp8266ChimeRepsNumber).extend(cv.COMPONENT_SCHEMA),
-        cv.Optional(CONF_ALARM_VOLUME, default={"name": "Alarm Lautstärke"}): number.number_schema(Esp8266AlarmVolumeNumber).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_CHIME_VOLUME): number.number_schema(Esp8266ChimeVolumeNumber).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_CHIME_REPS): number.number_schema(Esp8266ChimeRepsNumber).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_ALARM_VOLUME): number.number_schema(Esp8266AlarmVolumeNumber).extend(cv.COMPONENT_SCHEMA),
     }
 )
 

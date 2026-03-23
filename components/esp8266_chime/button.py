@@ -14,7 +14,7 @@ Esp8266ChimePlayButton = esp8266_chime_ns.class_("Esp8266ChimePlayButton", butto
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(CONF_ESP8266_CHIME_ID): cv.use_id(Esp8266Chime),
-        cv.Optional(CONF_CHIME_PLAY, default={"name": "Chime Abspielen"}): button.button_schema(Esp8266ChimePlayButton).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_CHIME_PLAY): button.button_schema(Esp8266ChimePlayButton).extend(cv.COMPONENT_SCHEMA),
     }
 )
 
