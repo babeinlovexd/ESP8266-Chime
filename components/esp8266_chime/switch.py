@@ -20,10 +20,13 @@ CONFIG_SCHEMA = cv.Schema(
 async def to_code(config):
     hub = await cg.get_variable(config[CONF_ESP8266_CHIME_ID])
 
-    if CONF_ALARM_LOOP in config:
-        conf = config[CONF_ALARM_LOOP]
-        var = cg.new_Pvariable(conf[CONF_ID])
-        await cg.register_component(var, conf)
-        await switch.register_switch(var, conf)
-        cg.add(var.set_parent(hub))
-        cg.add(hub.set_alarm_loop_switch(var))
+    conf = config.get(CONF_ALARM_LOOP, {})
+    if not conf:
+        conf = {"name": "Alarm Loop"}
+        conf[CONF_ID] = cg.ObjectID("alarm_loop_switch", type=Esp8266AlarmLoopSwitch)
+
+    var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(var, conf)
+    await switch.register_switch(var, conf)
+    cg.add(var.set_parent(hub))
+    cg.add(hub.set_alarm_loop_switch(var))

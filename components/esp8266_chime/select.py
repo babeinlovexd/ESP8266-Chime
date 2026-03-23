@@ -28,18 +28,24 @@ async def to_code(config):
         "6. Siren", "7. Doorbell", "8. Notification", "9. Error", "10. Success"
     ]
 
-    if CONF_CHIME_SOUND in config:
-        conf = config[CONF_CHIME_SOUND]
-        var = cg.new_Pvariable(conf[CONF_ID])
-        await cg.register_component(var, conf)
-        await select.register_select(var, conf, options=options)
-        cg.add(var.set_parent(hub))
-        cg.add(hub.set_chime_sound_select(var))
+    conf = config.get(CONF_CHIME_SOUND, {})
+    if not conf:
+        conf = {"name": "Chime Ton"}
+        conf[CONF_ID] = cg.ObjectID("chime_sound_select", type=Esp8266ChimeSoundSelect)
 
-    if CONF_ALARM_SOUND in config:
-        conf = config[CONF_ALARM_SOUND]
-        var = cg.new_Pvariable(conf[CONF_ID])
-        await cg.register_component(var, conf)
-        await select.register_select(var, conf, options=options)
-        cg.add(var.set_parent(hub))
-        cg.add(hub.set_alarm_sound_select(var))
+    var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(var, conf)
+    await select.register_select(var, conf, options=options)
+    cg.add(var.set_parent(hub))
+    cg.add(hub.set_chime_sound_select(var))
+
+    conf = config.get(CONF_ALARM_SOUND, {})
+    if not conf:
+        conf = {"name": "Alarm Ton"}
+        conf[CONF_ID] = cg.ObjectID("alarm_sound_select", type=Esp8266AlarmSoundSelect)
+
+    var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(var, conf)
+    await select.register_select(var, conf, options=options)
+    cg.add(var.set_parent(hub))
+    cg.add(hub.set_alarm_sound_select(var))
