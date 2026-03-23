@@ -16,7 +16,7 @@ Dieses Plugin ist auf absolute Zuverlässigkeit und minimalen Aufwand ausgelegt:
 * **Eigene C++ I2S-Wiedergabe:** Kein Rückgriff mehr auf fehleranfällige externe Bibliotheken (wie ESP8266Audio). Audio Playback läuft nativ über `<core_esp8266_i2s.h>` und `i2s_write_sample_nb()`. Dies sorgt für reibungslose PlatformIO-Kompilierungen und maximale Zuverlässigkeit ohne Dependency-Konflikte.
 * **10 Integrierte PROGMEM Sounds:** Ding Dong, Trill Alarm, Sweep Sound, Solid Beep, G5 Chime, Siren, Doorbell, Notification, Error, Success. (Alle 8000Hz, Mono, als Hex-Arrays integriert).
 * **Duale State Machine (Chime & Alarm):** Intelligente Prioritätssteuerung. Der Alarm hat **höchste Priorität** und loopt kontinuierlich, bis er manuell deaktiviert wird. Laufende Chimes (Gongs) werden sofort für den Alarm unterbrochen, und der Chime-Button wird während eines Alarms ignoriert.
-* **Vollautomatische Home Assistant Integration:** Erstellt aus einer minimalen YAML-Konfiguration automatisch 7 Entitäten in Home Assistant. Keine versteckten Text-Sensoren, sondern saubere `number`, `select`, `button` und `switch` Sub-Entities.
+* **Vollautomatische Home Assistant Integration:** Erstellt aus einer minimalen YAML-Konfiguration automatisch 7 Entitäten in Home Assistant. Keine versteckten Text-Sensoren, sondern saubere `number`, `select`, `button` und `switch` Sub-Entities. *(Bitte die leeren Hauptblöcke in deiner YAML nicht vergessen, siehe Beispiel!)*
 * **Smarter Popschutz (Standby-Logik):** Steuert den Shutdown-Pin deines Verstärkers (LOW = an, HIGH = stumm) mit einem integrierten 50ms Delay vor der Wiedergabe, um Knack-Geräusche beim Einschalten zu vermeiden.
 * **PT8211 DAC Kompatibilität:** 16-Bit Mono-Samples aus dem PROGMEM werden on-the-fly zu 32-Bit Stereo-Daten kombiniert, um den PT8211 DAC korrekt anzusteuern (Linker Kanal in den unteren 16 Bits, Rechter Kanal in den oberen 16 Bits).
 
@@ -80,7 +80,8 @@ esp8266_chime:
     number: GPIO12
     inverted: false
 
-# Notwendig, damit die automatischen Entitäten von ESPHome generiert werden
+# WICHTIG: Notwendig, damit die automatischen Entitäten für Home Assistant
+# vom ESPHome-Compiler eingebunden und in HA geladen werden!
 number:
 select:
 button:
