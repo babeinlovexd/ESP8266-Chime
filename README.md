@@ -69,7 +69,8 @@ logger:
 external_components:
   - source:
       type: git
-      url: https://github.com/babeinlovexd/ESP8266-Chime
+      url: https://github.com/babeinlovexd/esp8266-chime
+    components: [ esp8266_chime ]
 
 esp8266_chime:
   id: my_chime
