@@ -21,8 +21,9 @@ async def to_code(config):
     hub = await cg.get_variable(config[CONF_ESP8266_CHIME_ID])
 
     conf = config.get(CONF_ALARM_LOOP, {})
-    if not conf:
-        conf = {"name": "Alarm Loop"}
+    if "name" not in conf:
+        conf["name"] = "Alarm Loop"
+    if CONF_ID not in conf:
         conf[CONF_ID] = cg.ObjectID("alarm_loop_switch", type=Esp8266AlarmLoopSwitch)
 
     var = cg.new_Pvariable(conf[CONF_ID])

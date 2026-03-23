@@ -29,8 +29,9 @@ async def to_code(config):
     ]
 
     conf = config.get(CONF_CHIME_SOUND, {})
-    if not conf:
-        conf = {"name": "Chime Ton"}
+    if "name" not in conf:
+        conf["name"] = "Chime Ton"
+    if CONF_ID not in conf:
         conf[CONF_ID] = cg.ObjectID("chime_sound_select", type=Esp8266ChimeSoundSelect)
 
     var = cg.new_Pvariable(conf[CONF_ID])
@@ -40,8 +41,9 @@ async def to_code(config):
     cg.add(hub.set_chime_sound_select(var))
 
     conf = config.get(CONF_ALARM_SOUND, {})
-    if not conf:
-        conf = {"name": "Alarm Ton"}
+    if "name" not in conf:
+        conf["name"] = "Alarm Ton"
+    if CONF_ID not in conf:
         conf[CONF_ID] = cg.ObjectID("alarm_sound_select", type=Esp8266AlarmSoundSelect)
 
     var = cg.new_Pvariable(conf[CONF_ID])

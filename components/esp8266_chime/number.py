@@ -28,8 +28,9 @@ async def to_code(config):
     hub = await cg.get_variable(config[CONF_ESP8266_CHIME_ID])
 
     conf = config.get(CONF_CHIME_VOLUME, {})
-    if not conf:
-        conf = {"name": "Chime Lautstärke"}
+    if "name" not in conf:
+        conf["name"] = "Chime Lautstärke"
+    if CONF_ID not in conf:
         conf[CONF_ID] = cg.ObjectID("chime_volume_number", type=Esp8266ChimeVolumeNumber)
 
     var = cg.new_Pvariable(conf[CONF_ID])
@@ -39,8 +40,9 @@ async def to_code(config):
     cg.add(hub.set_chime_volume_number(var))
 
     conf = config.get(CONF_CHIME_REPS, {})
-    if not conf:
-        conf = {"name": "Chime Wiederholungen"}
+    if "name" not in conf:
+        conf["name"] = "Chime Wiederholungen"
+    if CONF_ID not in conf:
         conf[CONF_ID] = cg.ObjectID("chime_reps_number", type=Esp8266ChimeRepsNumber)
 
     var = cg.new_Pvariable(conf[CONF_ID])
@@ -50,8 +52,9 @@ async def to_code(config):
     cg.add(hub.set_chime_reps_number(var))
 
     conf = config.get(CONF_ALARM_VOLUME, {})
-    if not conf:
-        conf = {"name": "Alarm Lautstärke"}
+    if "name" not in conf:
+        conf["name"] = "Alarm Lautstärke"
+    if CONF_ID not in conf:
         conf[CONF_ID] = cg.ObjectID("alarm_volume_number", type=Esp8266AlarmVolumeNumber)
 
     var = cg.new_Pvariable(conf[CONF_ID])
