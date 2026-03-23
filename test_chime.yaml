@@ -26,8 +26,3 @@ esp8266_chime:
   sd:
     number: GPIO12
     inverted: false
-
-number:
-select:
-button:
-switch:
