@@ -21,10 +21,13 @@ CONFIG_SCHEMA = cv.Schema(
 async def to_code(config):
     hub = await cg.get_variable(config[CONF_ESP8266_CHIME_ID])
 
-    if CONF_CHIME_PLAY in config:
-        conf = config[CONF_CHIME_PLAY]
-        var = cg.new_Pvariable(conf[CONF_ID])
-        await cg.register_component(var, conf)
-        await button.register_button(var, conf)
-        cg.add(var.set_parent(hub))
-        cg.add(hub.set_chime_play_button(var))
+    conf = config.get(CONF_CHIME_PLAY, {})
+    if not conf:
+        conf = {"name": "Chime Abspielen"}
+        conf[CONF_ID] = cg.ObjectID("chime_play_button", type=Esp8266ChimePlayButton)
+
+    var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(var, conf)
+    await button.register_button(var, conf)
+    cg.add(var.set_parent(hub))
+    cg.add(hub.set_chime_play_button(var))

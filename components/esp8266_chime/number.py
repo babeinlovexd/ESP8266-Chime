@@ -27,26 +27,35 @@ CONFIG_SCHEMA = cv.Schema(
 async def to_code(config):
     hub = await cg.get_variable(config[CONF_ESP8266_CHIME_ID])
 
-    if CONF_CHIME_VOLUME in config:
-        conf = config[CONF_CHIME_VOLUME]
-        var = cg.new_Pvariable(conf[CONF_ID])
-        await cg.register_component(var, conf)
-        await number.register_number(var, conf, min_value=0, max_value=100, step=1)
-        cg.add(var.set_parent(hub))
-        cg.add(hub.set_chime_volume_number(var))
+    conf = config.get(CONF_CHIME_VOLUME, {})
+    if not conf:
+        conf = {"name": "Chime Lautstärke"}
+        conf[CONF_ID] = cg.ObjectID("chime_volume_number", type=Esp8266ChimeVolumeNumber)
 
-    if CONF_CHIME_REPS in config:
-        conf = config[CONF_CHIME_REPS]
-        var = cg.new_Pvariable(conf[CONF_ID])
-        await cg.register_component(var, conf)
-        await number.register_number(var, conf, min_value=1, max_value=5, step=1)
-        cg.add(var.set_parent(hub))
-        cg.add(hub.set_chime_reps_number(var))
+    var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(var, conf)
+    await number.register_number(var, conf, min_value=0, max_value=100, step=1)
+    cg.add(var.set_parent(hub))
+    cg.add(hub.set_chime_volume_number(var))
 
-    if CONF_ALARM_VOLUME in config:
-        conf = config[CONF_ALARM_VOLUME]
-        var = cg.new_Pvariable(conf[CONF_ID])
-        await cg.register_component(var, conf)
-        await number.register_number(var, conf, min_value=0, max_value=100, step=1)
-        cg.add(var.set_parent(hub))
-        cg.add(hub.set_alarm_volume_number(var))
+    conf = config.get(CONF_CHIME_REPS, {})
+    if not conf:
+        conf = {"name": "Chime Wiederholungen"}
+        conf[CONF_ID] = cg.ObjectID("chime_reps_number", type=Esp8266ChimeRepsNumber)
+
+    var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(var, conf)
+    await number.register_number(var, conf, min_value=1, max_value=5, step=1)
+    cg.add(var.set_parent(hub))
+    cg.add(hub.set_chime_reps_number(var))
+
+    conf = config.get(CONF_ALARM_VOLUME, {})
+    if not conf:
+        conf = {"name": "Alarm Lautstärke"}
+        conf[CONF_ID] = cg.ObjectID("alarm_volume_number", type=Esp8266AlarmVolumeNumber)
+
+    var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(var, conf)
+    await number.register_number(var, conf, min_value=0, max_value=100, step=1)
+    cg.add(var.set_parent(hub))
+    cg.add(hub.set_alarm_volume_number(var))
