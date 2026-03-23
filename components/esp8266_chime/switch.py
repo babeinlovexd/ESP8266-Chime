@@ -10,22 +10,15 @@ CONF_ALARM_LOOP = "alarm_loop"
 
 Esp8266AlarmLoopSwitch = esp8266_chime_ns.class_("Esp8266AlarmLoopSwitch", switch.Switch, cg.Component)
 
-CONFIG_SCHEMA = cv.Schema(
-    {
-        cv.GenerateID(CONF_ESP8266_CHIME_ID): cv.use_id(Esp8266Chime),
-        cv.Optional(CONF_ALARM_LOOP): switch.switch_schema(Esp8266AlarmLoopSwitch).extend(cv.COMPONENT_SCHEMA),
-    }
-)
+CONFIG_SCHEMA = cv.Schema({
+    cv.GenerateID(CONF_ESP8266_CHIME_ID): cv.use_id(Esp8266Chime),
+    cv.Optional(CONF_ALARM_LOOP, default={"name": "Alarm Loop"}): switch.switch_schema(Esp8266AlarmLoopSwitch).extend(cv.COMPONENT_SCHEMA),
+})
 
 async def to_code(config):
     hub = await cg.get_variable(config[CONF_ESP8266_CHIME_ID])
 
-    conf = config.get(CONF_ALARM_LOOP, {})
-    if "name" not in conf:
-        conf["name"] = "Alarm Loop"
-    if CONF_ID not in conf:
-        conf[CONF_ID] = cg.ObjectID("alarm_loop_switch", type=Esp8266AlarmLoopSwitch)
-
+    conf = config[CONF_ALARM_LOOP]
     var = cg.new_Pvariable(conf[CONF_ID])
     await cg.register_component(var, conf)
     await switch.register_switch(var, conf)

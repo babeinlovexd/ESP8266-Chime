@@ -11,22 +11,15 @@ CONF_CHIME_PLAY = "chime_play"
 
 Esp8266ChimePlayButton = esp8266_chime_ns.class_("Esp8266ChimePlayButton", button.Button, cg.Component)
 
-CONFIG_SCHEMA = cv.Schema(
-    {
-        cv.GenerateID(CONF_ESP8266_CHIME_ID): cv.use_id(Esp8266Chime),
-        cv.Optional(CONF_CHIME_PLAY): button.button_schema(Esp8266ChimePlayButton).extend(cv.COMPONENT_SCHEMA),
-    }
-)
+CONFIG_SCHEMA = cv.Schema({
+    cv.GenerateID(CONF_ESP8266_CHIME_ID): cv.use_id(Esp8266Chime),
+    cv.Optional(CONF_CHIME_PLAY, default={"name": "Chime Abspielen"}): button.button_schema(Esp8266ChimePlayButton).extend(cv.COMPONENT_SCHEMA),
+})
 
 async def to_code(config):
     hub = await cg.get_variable(config[CONF_ESP8266_CHIME_ID])
 
-    conf = config.get(CONF_CHIME_PLAY, {})
-    if "name" not in conf:
-        conf["name"] = "Chime Abspielen"
-    if CONF_ID not in conf:
-        conf[CONF_ID] = cg.ObjectID("chime_play_button", type=Esp8266ChimePlayButton)
-
+    conf = config[CONF_CHIME_PLAY]
     var = cg.new_Pvariable(conf[CONF_ID])
     await cg.register_component(var, conf)
     await button.register_button(var, conf)
