@@ -110,7 +110,7 @@ void Esp8266Chime::play_chime() {
   this->current_rep_ = 0;
 
   if (this->chime_sound_select_->has_state()) {
-      this->current_sound_ = this->chime_sound_select_->state;
+      this->current_sound_ = this->chime_sound_select_->current_option();
   } else {
       this->current_sound_ = this->chime_sound_select_->traits.get_options()[0];
   }
@@ -130,7 +130,7 @@ void Esp8266Chime::play_alarm() {
   }
 
   if (this->alarm_sound_select_->has_state()) {
-      this->current_sound_ = this->alarm_sound_select_->state;
+      this->current_sound_ = this->alarm_sound_select_->current_option();
   } else {
       this->current_sound_ = this->alarm_sound_select_->traits.get_options()[0];
   }

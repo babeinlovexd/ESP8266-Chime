@@ -22,8 +22,9 @@ async def to_code(config):
     hub = await cg.get_variable(config[CONF_ESP8266_CHIME_ID])
 
     conf = config.get(CONF_CHIME_PLAY, {})
-    if not conf:
-        conf = {"name": "Chime Abspielen"}
+    if "name" not in conf:
+        conf["name"] = "Chime Abspielen"
+    if CONF_ID not in conf:
         conf[CONF_ID] = cg.ObjectID("chime_play_button", type=Esp8266ChimePlayButton)
 
     var = cg.new_Pvariable(conf[CONF_ID])
