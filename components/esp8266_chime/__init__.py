@@ -5,7 +5,7 @@ from esphome.components import number, select, button, switch
 from esphome.const import CONF_ID
 
 CODEOWNERS = ["@esphome"]
-DEPENDENCIES = ["number", "select", "button", "switch"]
+AUTO_LOAD = ["number", "select", "button", "switch"]
 
 esp8266_chime_ns = cg.esphome_ns.namespace("esp8266_chime")
 Esp8266Chime = esp8266_chime_ns.class_("Esp8266Chime", cg.Component)

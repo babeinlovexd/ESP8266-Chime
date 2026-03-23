@@ -16,8 +16,8 @@ Esp8266AlarmSoundSelect = esp8266_chime_ns.class_("Esp8266AlarmSoundSelect", sel
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(CONF_ESP8266_CHIME_ID): cv.use_id(Esp8266Chime),
-        cv.Optional(CONF_CHIME_SOUND, default={"name": "Chime Ton"}): select.select_schema(Esp8266ChimeSoundSelect).extend(cv.COMPONENT_SCHEMA),
-        cv.Optional(CONF_ALARM_SOUND, default={"name": "Alarm Ton"}): select.select_schema(Esp8266AlarmSoundSelect).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_CHIME_SOUND): select.select_schema(Esp8266ChimeSoundSelect).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_ALARM_SOUND): select.select_schema(Esp8266AlarmSoundSelect).extend(cv.COMPONENT_SCHEMA),
     }
 )
 
