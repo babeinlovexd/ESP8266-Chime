@@ -70,7 +70,6 @@ external_components:
   - source:
       type: git
       url: https://github.com/babeinlovexd/ESP8266-Chime
-      ref: main
 
 esp8266_chime:
   id: my_chime
