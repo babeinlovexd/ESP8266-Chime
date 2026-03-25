@@ -5,6 +5,7 @@
 #include "esphome/components/select/select.h"
 #include "esphome/components/button/button.h"
 #include "esphome/components/switch/switch.h"
+#include "esphome/core/preferences.h"
 #include "esphome/core/hal.h"
 
 #ifdef USE_ESP8266
@@ -79,7 +80,10 @@ class Esp8266ChimeVolumeNumber : public number::Number, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  void setup() override;
  protected:
+  ESPPreferenceObject pref_;
+
   void control(float value) override;
   Esp8266Chime *parent_{nullptr};
 };
@@ -88,7 +92,10 @@ class Esp8266ChimeRepsNumber : public number::Number, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  void setup() override;
  protected:
+  ESPPreferenceObject pref_;
+
   void control(float value) override;
   Esp8266Chime *parent_{nullptr};
 };
@@ -97,7 +104,10 @@ class Esp8266ChimeSoundSelect : public select::Select, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  void setup() override;
  protected:
+  ESPPreferenceObject pref_;
+
   void control(const std::string &value) override;
   Esp8266Chime *parent_{nullptr};
 };
@@ -115,7 +125,10 @@ class Esp8266AlarmVolumeNumber : public number::Number, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  void setup() override;
  protected:
+  ESPPreferenceObject pref_;
+
   void control(float value) override;
   Esp8266Chime *parent_{nullptr};
 };
@@ -124,7 +137,10 @@ class Esp8266AlarmSoundSelect : public select::Select, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  void setup() override;
  protected:
+  ESPPreferenceObject pref_;
+
   void control(const std::string &value) override;
   Esp8266Chime *parent_{nullptr};
 };
@@ -133,7 +149,10 @@ class Esp8266AlarmLoopSwitch : public switch_::Switch, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  void setup() override;
  protected:
+  ESPPreferenceObject pref_;
+
   void write_state(bool state) override;
   Esp8266Chime *parent_{nullptr};
 };

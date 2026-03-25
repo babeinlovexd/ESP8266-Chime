@@ -21,28 +21,9 @@ void Esp8266Chime::setup() {
   i2s_set_rate(8000);
 #endif
 
-  // Set default volume
-  this->current_volume_ = 1.0;
-  if (this->chime_volume_number_ != nullptr) {
-    this->chime_volume_number_->publish_state(100.0);
-  }
-  if (this->chime_reps_number_ != nullptr) {
-    this->chime_reps_number_->publish_state(1.0);
-  }
-  if (this->chime_sound_select_ != nullptr) {
-      if (this->chime_sound_select_->traits.get_options().size() > 0) {
-          this->chime_sound_select_->publish_state(this->chime_sound_select_->traits.get_options()[0]);
-      }
-  }
 
-  if (this->alarm_volume_number_ != nullptr) {
-    this->alarm_volume_number_->publish_state(100.0);
-  }
-  if (this->alarm_sound_select_ != nullptr) {
-      if (this->alarm_sound_select_->traits.get_options().size() > 0) {
-          this->alarm_sound_select_->publish_state(this->alarm_sound_select_->traits.get_options()[0]);
-      }
-  }
+
+
 }
 
 void Esp8266Chime::loop() {
@@ -221,21 +202,57 @@ void Esp8266Chime::set_volume(float volume) {
   this->current_volume_ = volume;
 }
 
+
 // ------------------------------------------
+
+void Esp8266ChimeVolumeNumber::setup() {
+  float value;
+  this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
+  if (this->pref_.load(&value)) {
+    this->publish_state(value);
+  } else {
+    this->publish_state(100.0);
+  }
+}
 
 void Esp8266ChimeVolumeNumber::control(float value) {
   this->publish_state(value);
-  if (this->parent_) {
-    // Volume takes effect on next played sound
+  this->pref_.save(&value);
+}
+
+void Esp8266ChimeRepsNumber::setup() {
+  float value;
+  this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
+  if (this->pref_.load(&value)) {
+    this->publish_state(value);
+  } else {
+    this->publish_state(1.0);
   }
 }
 
 void Esp8266ChimeRepsNumber::control(float value) {
   this->publish_state(value);
+  this->pref_.save(&value);
+}
+
+void Esp8266ChimeSoundSelect::setup() {
+  size_t index;
+  this->pref_ = global_preferences->make_preference<size_t>(this->get_object_id_hash());
+  if (this->pref_.load(&index) && index < this->traits.get_options().size()) {
+    this->publish_state(this->traits.get_options()[index]);
+  } else if (this->traits.get_options().size() > 0) {
+    this->publish_state(this->traits.get_options()[0]);
+  }
 }
 
 void Esp8266ChimeSoundSelect::control(const std::string &value) {
   this->publish_state(value);
+  const auto &options = this->traits.get_options();
+  auto it = std::find(options.begin(), options.end(), value);
+  if (it != options.end()) {
+    size_t index = std::distance(options.begin(), it);
+    this->pref_.save(&index);
+  }
 }
 
 void Esp8266ChimePlayButton::press_action() {
@@ -244,16 +261,57 @@ void Esp8266ChimePlayButton::press_action() {
   }
 }
 
+void Esp8266AlarmVolumeNumber::setup() {
+  float value;
+  this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
+  if (this->pref_.load(&value)) {
+    this->publish_state(value);
+  } else {
+    this->publish_state(100.0);
+  }
+}
+
 void Esp8266AlarmVolumeNumber::control(float value) {
   this->publish_state(value);
+  this->pref_.save(&value);
+}
+
+void Esp8266AlarmSoundSelect::setup() {
+  size_t index;
+  this->pref_ = global_preferences->make_preference<size_t>(this->get_object_id_hash());
+  if (this->pref_.load(&index) && index < this->traits.get_options().size()) {
+    this->publish_state(this->traits.get_options()[index]);
+  } else if (this->traits.get_options().size() > 0) {
+    this->publish_state(this->traits.get_options()[0]);
+  }
 }
 
 void Esp8266AlarmSoundSelect::control(const std::string &value) {
   this->publish_state(value);
+  const auto &options = this->traits.get_options();
+  auto it = std::find(options.begin(), options.end(), value);
+  if (it != options.end()) {
+    size_t index = std::distance(options.begin(), it);
+    this->pref_.save(&index);
+  }
+}
+
+void Esp8266AlarmLoopSwitch::setup() {
+  bool state;
+  this->pref_ = global_preferences->make_preference<bool>(this->get_object_id_hash());
+  if (this->pref_.load(&state)) {
+    this->publish_state(state);
+    if (this->parent_) {
+      this->parent_->handle_alarm_switch(state);
+    }
+  } else {
+    this->publish_state(false);
+  }
 }
 
 void Esp8266AlarmLoopSwitch::write_state(bool state) {
   this->publish_state(state);
+  this->pref_.save(&state);
   if (this->parent_) {
     this->parent_->handle_alarm_switch(state);
   }
