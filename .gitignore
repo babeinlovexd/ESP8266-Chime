@@ -16,3 +16,4 @@ build/
 # You can modify this file to suit your needs.
 /.esphome/
 /secrets.yaml
+esphome-2023.12.0/
