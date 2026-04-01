@@ -1,16 +1,16 @@
 import wave
 import struct
 import math
+import array
 
 def generate_wav(filename, samples, sample_rate=8000):
     with wave.open(filename, 'w') as wav_file:
         wav_file.setnchannels(1)
         wav_file.setsampwidth(2) # 16-bit
         wav_file.setframerate(sample_rate)
-        for s in samples:
-            # clamp
-            s = max(-32768, min(32767, int(s * 32767)))
-            wav_file.writeframesraw(struct.pack('<h', s))
+        # buffer all samples using array for efficiency
+        clamped_samples = array.array('h', (max(-32768, min(32767, int(s * 32767))) for s in samples))
+        wav_file.writeframesraw(clamped_samples.tobytes())
 
 def gen_dingdong():
     # Ding: 659.25 Hz (E5), Dong: 523.25 Hz (C5)
