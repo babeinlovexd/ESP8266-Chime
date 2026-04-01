@@ -126,7 +126,7 @@ gen_notification()
 gen_error()
 gen_success()
 
-import os
+
 def wav_to_h():
     files = [
         'sound_dingdong.wav', 'sound_trill.wav', 'sound_sweep.wav', 'sound_beep.wav', 'sound_chime.wav',
