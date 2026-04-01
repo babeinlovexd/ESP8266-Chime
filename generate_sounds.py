@@ -115,18 +115,6 @@ def gen_success():
         samples.append(env * math.sin(2 * math.pi * 1000 * i / sr))
     generate_wav('sound_success.wav', samples)
 
-gen_dingdong()
-gen_trill()
-gen_sweep()
-gen_beep()
-gen_chime()
-gen_siren()
-gen_doorbell()
-gen_notification()
-gen_error()
-gen_success()
-
-import os
 def wav_to_h():
     files = [
         'sound_dingdong.wav', 'sound_trill.wav', 'sound_sweep.wav', 'sound_beep.wav', 'sound_chime.wav',
@@ -143,4 +131,15 @@ def wav_to_h():
     with open('sounds.h', 'w') as out_f:
         out_f.write(out)
 
-wav_to_h()
+if __name__ == "__main__":
+    gen_dingdong()
+    gen_trill()
+    gen_sweep()
+    gen_beep()
+    gen_chime()
+    gen_siren()
+    gen_doorbell()
+    gen_notification()
+    gen_error()
+    gen_success()
+    wav_to_h()
