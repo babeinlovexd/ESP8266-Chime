@@ -9,12 +9,18 @@
 
 Willkommen bei der **Insane ESPH: ESP8266 Chime Component** – deiner ultimativen Custom-Audio-Lösung für ESP8266 in Home Assistant!
 
-Diese benutzerdefinierte (external component) ESPHome-Komponente wurde für das "Insane ESPH" Projekt entwickelt. Sie spielt **10 in PROGMEM gespeicherte WAV-Dateien** über I2S auf einem ESP8266 ab (unter Verwendung eines PT8211 DAC + LM4871 Verstärker) und bringt eine intelligente State Machine für Chime (Gong) und Alarm mit.
+Diese benutzerdefinierte (external component) ESPHome-Komponente wurde für das "Insane ESPH" Projekt entwickelt. Sie spielt **30 in PROGMEM gespeicherte WAV-Dateien** über I2S auf einem ESP8266 ab (unter Verwendung eines PT8211 DAC + LM4871 Verstärker) und bringt eine intelligente State Machine für Chime (Gong) und Alarm mit.
 
 ### 🔥 Was kann das Teil ALLES?
 Dieses Plugin ist auf absolute Zuverlässigkeit und minimalen Aufwand ausgelegt:
 * **Eigene C++ I2S-Wiedergabe:** Kein Rückgriff mehr auf fehleranfällige externe Bibliotheken (wie ESP8266Audio). Audio Playback läuft nativ über `<core_esp8266_i2s.h>` und `i2s_write_sample_nb()`. Dies sorgt für reibungslose PlatformIO-Kompilierungen und maximale Zuverlässigkeit ohne Dependency-Konflikte.
-* **10 Integrierte PROGMEM Sounds:** Ding Dong, Trill Alarm, Sweep Sound, Solid Beep, G5 Chime, Siren, Doorbell, Notification, Error, Success. (Alle 8000Hz, Mono, als Hex-Arrays integriert).
+* **30 Integrierte PROGMEM Sounds:**
+  - **Standard:** Ding Dong, Trill Alarm, Sweep Sound, Solid Beep, G5 Chime, Siren, Doorbell, Notification, Error, Success.
+  - **Smart Home Eskalation:** Washing Machine, Mail Delivered, Window Open, Pre Alarm.
+  - **Sci-Fi / UI:** Access Granted, Cyberpunk, UI Click 1, UI Click 2, UI Click 3, Sci Fi Alert.
+  - **Retro Gaming:** Level Up, Game Over, Coin, Arcade Start.
+  - **Organisch & Specials:** Wood Knock, Glass Ping, Elevator Ding, Soft Bell, Magic Sparkle, Bass Drop.
+  (Alle 8000Hz, Mono, als Hex-Arrays integriert). (Alle 8000Hz, Mono, als Hex-Arrays integriert).
 * **Duale State Machine (Chime & Alarm):** Intelligente Prioritätssteuerung. Der Alarm hat **höchste Priorität** und loopt kontinuierlich, bis er manuell deaktiviert wird. Laufende Chimes (Gongs) werden sofort für den Alarm unterbrochen, und der Chime-Button wird während eines Alarms ignoriert.
 * **Vollautomatische Home Assistant Integration:** Erstellt aus einer minimalen YAML-Konfiguration vollautomatisch 7 Entitäten in Home Assistant. Komplett Plug & Play – keine zusätzlichen `number`, `select`, `button` oder `switch` Plattform-Blöcke in der YAML nötig!
 * **Smarter Popschutz (Standby-Logik):** Steuert den Shutdown-Pin deines Verstärkers (LOW = an, HIGH = stumm) mit einem integrierten 50ms Delay vor der Wiedergabe, um Knack-Geräusche beim Einschalten zu vermeiden.
@@ -30,11 +36,11 @@ Sobald das Gerät geflasht und mit Home Assistant verbunden ist, werden folgende
 * **Sektion 1 (Chime/Gong):**
   1. `number`: "Chime Lautstärke" (0-100%).
   2. `number`: "Chime Wiederholungen" (1-5x).
-  3. `select`: "Chime Ton" (Auswahl aus 10 Sounds).
+  3. `select`: "Chime Ton" (Auswahl aus 30 Sounds).
   4. `button`: "Chime Abspielen" (Startet den Gong).
 * **Sektion 2 (Alarm):**
   5. `number`: "Alarm Lautstärke" (0-100%).
-  6. `select`: "Alarm Ton" (Auswahl aus 10 Sounds).
+  6. `select`: "Alarm Ton" (Auswahl aus 30 Sounds).
   7. `switch`: "Alarm Loop" (Endlosschleife, bis der Schalter deaktiviert wird).
 
 ---

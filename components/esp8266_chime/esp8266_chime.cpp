@@ -157,6 +157,66 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   } else if (selected == "10. Success") {
     this->current_data_ = sound_success;
     this->current_len_ = sound_success_len;
+  } else if (selected == "11. Washing Machine") {
+    this->current_data_ = sound_washing_machine;
+    this->current_len_ = sound_washing_machine_len;
+  } else if (selected == "12. Mail Delivered") {
+    this->current_data_ = sound_mail_delivered;
+    this->current_len_ = sound_mail_delivered_len;
+  } else if (selected == "13. Window Open") {
+    this->current_data_ = sound_window_open;
+    this->current_len_ = sound_window_open_len;
+  } else if (selected == "14. Pre Alarm") {
+    this->current_data_ = sound_pre_alarm;
+    this->current_len_ = sound_pre_alarm_len;
+  } else if (selected == "15. Access Granted") {
+    this->current_data_ = sound_access_granted;
+    this->current_len_ = sound_access_granted_len;
+  } else if (selected == "16. Cyberpunk") {
+    this->current_data_ = sound_cyberpunk;
+    this->current_len_ = sound_cyberpunk_len;
+  } else if (selected == "17. UI Click 1") {
+    this->current_data_ = sound_ui_click1;
+    this->current_len_ = sound_ui_click1_len;
+  } else if (selected == "18. UI Click 2") {
+    this->current_data_ = sound_ui_click2;
+    this->current_len_ = sound_ui_click2_len;
+  } else if (selected == "19. UI Click 3") {
+    this->current_data_ = sound_ui_click3;
+    this->current_len_ = sound_ui_click3_len;
+  } else if (selected == "20. Level Up") {
+    this->current_data_ = sound_level_up;
+    this->current_len_ = sound_level_up_len;
+  } else if (selected == "21. Game Over") {
+    this->current_data_ = sound_game_over;
+    this->current_len_ = sound_game_over_len;
+  } else if (selected == "22. Coin") {
+    this->current_data_ = sound_coin;
+    this->current_len_ = sound_coin_len;
+  } else if (selected == "23. Wood Knock") {
+    this->current_data_ = sound_wood_knock;
+    this->current_len_ = sound_wood_knock_len;
+  } else if (selected == "24. Glass Ping") {
+    this->current_data_ = sound_glass_ping;
+    this->current_len_ = sound_glass_ping_len;
+  } else if (selected == "25. Elevator Ding") {
+    this->current_data_ = sound_elevator_ding;
+    this->current_len_ = sound_elevator_ding_len;
+  } else if (selected == "26. Arcade Start") {
+    this->current_data_ = sound_arcade_start;
+    this->current_len_ = sound_arcade_start_len;
+  } else if (selected == "27. Sci Fi Alert") {
+    this->current_data_ = sound_sci_fi_alert;
+    this->current_len_ = sound_sci_fi_alert_len;
+  } else if (selected == "28. Soft Bell") {
+    this->current_data_ = sound_soft_bell;
+    this->current_len_ = sound_soft_bell_len;
+  } else if (selected == "29. Magic Sparkle") {
+    this->current_data_ = sound_magic_sparkle;
+    this->current_len_ = sound_magic_sparkle_len;
+  } else if (selected == "30. Bass Drop") {
+    this->current_data_ = sound_bass_drop;
+    this->current_len_ = sound_bass_drop_len;
   } else {
     ESP_LOGE(TAG, "Unknown sound selected: %s", selected.c_str());
     this->state_ = ChimeState::IDLE;
