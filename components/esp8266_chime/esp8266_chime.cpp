@@ -172,18 +172,18 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   } else if (selected == "15. Access Granted") {
     this->current_data_ = sound_access_granted;
     this->current_len_ = sound_access_granted_len;
-  } else if (selected == "16. Cyberpunk") {
-    this->current_data_ = sound_cyberpunk;
-    this->current_len_ = sound_cyberpunk_len;
-  } else if (selected == "17. UI Click 1") {
-    this->current_data_ = sound_ui_click1;
-    this->current_len_ = sound_ui_click1_len;
-  } else if (selected == "18. UI Click 2") {
-    this->current_data_ = sound_ui_click2;
-    this->current_len_ = sound_ui_click2_len;
-  } else if (selected == "19. UI Click 3") {
-    this->current_data_ = sound_ui_click3;
-    this->current_len_ = sound_ui_click3_len;
+  } else if (selected == "16. Notification Chime") {
+    this->current_data_ = sound_noti_chime;
+    this->current_len_ = sound_noti_chime_len;
+  } else if (selected == "17. Notification Bloop") {
+    this->current_data_ = sound_noti_bloop;
+    this->current_len_ = sound_noti_bloop_len;
+  } else if (selected == "18. Notification Pop") {
+    this->current_data_ = sound_noti_pop;
+    this->current_len_ = sound_noti_pop_len;
+  } else if (selected == "19. Notification Sparkle") {
+    this->current_data_ = sound_noti_sparkle;
+    this->current_len_ = sound_noti_sparkle_len;
   } else if (selected == "20. Level Up") {
     this->current_data_ = sound_level_up;
     this->current_len_ = sound_level_up_len;
@@ -193,9 +193,9 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   } else if (selected == "22. Coin") {
     this->current_data_ = sound_coin;
     this->current_len_ = sound_coin_len;
-  } else if (selected == "23. Wood Knock") {
-    this->current_data_ = sound_wood_knock;
-    this->current_len_ = sound_wood_knock_len;
+  } else if (selected == "23. Notification Alert") {
+    this->current_data_ = sound_noti_alert;
+    this->current_len_ = sound_noti_alert_len;
   } else if (selected == "24. Glass Ping") {
     this->current_data_ = sound_glass_ping;
     this->current_len_ = sound_glass_ping_len;

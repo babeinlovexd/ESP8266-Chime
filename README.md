@@ -17,9 +17,9 @@ Dieses Plugin ist auf absolute Zuverlässigkeit und minimalen Aufwand ausgelegt:
 * **30 Integrierte PROGMEM Sounds:**
   - **Standard:** Ding Dong, Trill Alarm, Sweep Sound, Solid Beep, G5 Chime, Siren, Doorbell, Notification, Error, Success.
   - **Smart Home Eskalation:** Washing Machine, Mail Delivered, Window Open, Pre Alarm.
-  - **Sci-Fi / UI:** Access Granted, Cyberpunk, UI Click 1, UI Click 2, UI Click 3, Sci Fi Alert.
+  - **Sci-Fi / UI:** Access Granted, Notification Chime, Notification Bloop, Notification Pop, Notification Sparkle, Sci Fi Alert.
   - **Retro Gaming:** Level Up, Game Over, Coin, Arcade Start.
-  - **Organisch & Specials:** Wood Knock, Glass Ping, Elevator Ding, Soft Bell, Magic Sparkle, Bass Drop.
+  - **Organisch & Specials:** Notification Alert, Glass Ping, Elevator Ding, Soft Bell, Magic Sparkle, Bass Drop.
   (Alle 8000Hz, Mono, als Hex-Arrays integriert). (Alle 8000Hz, Mono, als Hex-Arrays integriert).
 * **Duale State Machine (Chime & Alarm):** Intelligente Prioritätssteuerung. Der Alarm hat **höchste Priorität** und loopt kontinuierlich, bis er manuell deaktiviert wird. Laufende Chimes (Gongs) werden sofort für den Alarm unterbrochen, und der Chime-Button wird während eines Alarms ignoriert.
 * **Vollautomatische Home Assistant Integration:** Erstellt aus einer minimalen YAML-Konfiguration vollautomatisch 7 Entitäten in Home Assistant. Komplett Plug & Play – keine zusätzlichen `number`, `select`, `button` oder `switch` Plattform-Blöcke in der YAML nötig!
