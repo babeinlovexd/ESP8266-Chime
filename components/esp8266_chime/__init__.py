@@ -14,6 +14,7 @@ CONF_BCLK = "bclk"
 CONF_WS = "ws"
 CONF_DOUT = "dout"
 CONF_SD = "sd"
+CONF_I2S_FORMAT = "i2s_format"
 
 CONF_CHIME_VOLUME = "chime_volume"
 CONF_CHIME_REPS = "chime_reps"
@@ -34,6 +35,12 @@ Esp8266ChimePlayButton = esp8266_chime_ns.class_("Esp8266ChimePlayButton", butto
 
 Esp8266AlarmLoopSwitch = esp8266_chime_ns.class_("Esp8266AlarmLoopSwitch", switch.Switch, cg.Component)
 
+I2SFormat = esp8266_chime_ns.enum("I2SFormat")
+I2S_FORMAT_OPTIONS = {
+    "PHILIPS": I2SFormat.I2S_FORMAT_PHILIPS,
+    "LSBJ": I2SFormat.I2S_FORMAT_LSBJ,
+}
+
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(Esp8266Chime),
@@ -41,6 +48,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Required(CONF_WS): pins.internal_gpio_output_pin_schema,
         cv.Required(CONF_DOUT): pins.internal_gpio_output_pin_schema,
         cv.Required(CONF_SD): pins.gpio_output_pin_schema,
+        cv.Optional(CONF_I2S_FORMAT, default="PHILIPS"): cv.enum(I2S_FORMAT_OPTIONS, upper=True),
 
         cv.Optional(CONF_CHIME_VOLUME, default={"name": "Chime Lautstärke"}): number.number_schema(Esp8266ChimeVolumeNumber).extend(cv.COMPONENT_SCHEMA),
         cv.Optional(CONF_CHIME_REPS, default={"name": "Chime Wiederholungen"}): number.number_schema(Esp8266ChimeRepsNumber).extend(cv.COMPONENT_SCHEMA),
@@ -73,6 +81,8 @@ async def to_code(config):
 
     sd_pin = await cg.gpio_pin_expression(config[CONF_SD])
     cg.add(var.set_sd_pin(sd_pin))
+
+    cg.add(var.set_i2s_format(config[CONF_I2S_FORMAT]))
 
     # Number Entities
     conf = config[CONF_CHIME_VOLUME]

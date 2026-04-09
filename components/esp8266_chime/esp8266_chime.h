@@ -15,6 +15,11 @@
 namespace esphome {
 namespace esp8266_chime {
 
+enum I2SFormat {
+  I2S_FORMAT_PHILIPS = 0,
+  I2S_FORMAT_LSBJ = 1
+};
+
 enum class ChimeState {
   IDLE,
   PLAYING_CHIME,
@@ -32,6 +37,8 @@ class Esp8266Chime : public Component {
   void set_ws_pin(InternalGPIOPin *pin) { this->ws_pin_ = pin; }
   void set_dout_pin(InternalGPIOPin *pin) { this->dout_pin_ = pin; }
   void set_sd_pin(GPIOPin *pin) { this->sd_pin_ = pin; }
+
+  void set_i2s_format(I2SFormat format) { this->i2s_format_ = format; }
 
   void set_chime_volume_number(number::Number *num) { this->chime_volume_number_ = num; }
   void set_chime_reps_number(number::Number *num) { this->chime_reps_number_ = num; }
@@ -62,6 +69,8 @@ class Esp8266Chime : public Component {
   number::Number *alarm_volume_number_{nullptr};
   select::Select *alarm_sound_select_{nullptr};
   switch_::Switch *alarm_loop_switch_{nullptr};
+
+  I2SFormat i2s_format_{I2S_FORMAT_PHILIPS};
 
   ChimeState state_{ChimeState::IDLE};
   int current_rep_{0};

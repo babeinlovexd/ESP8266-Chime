@@ -83,6 +83,7 @@ esp8266_chime:
   bclk: GPIO15
   ws: GPIO2
   dout: GPIO3
+  i2s_format: LSBJ # Auswahl: PHILIPS oder LSBJ
   sd:
     number: GPIO12
     inverted: false
