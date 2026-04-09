@@ -3,6 +3,9 @@
 #include "sounds.h"
 #include <Arduino.h>
 #include <i2s_reg.h>
+#ifdef USE_ESP8266
+#include "eagle_soc.h"
+#endif
 
 namespace esphome {
 namespace esp8266_chime {
@@ -23,8 +26,8 @@ void Esp8266Chime::setup() {
 
   if (this->i2s_format_ == I2S_FORMAT_LSBJ) {
     // Fix for PT8211 (Japanese Format LSBJ)
-    // Clears the I2S_TX_MSB_SHIFT bit to disable the default Philips format
-    I2SC &= ~(1 << 15);
+    // Clears the I2S_TRANS_MSB_SHIFT bit to disable the default Philips format
+    CLEAR_PERI_REG_MASK(I2SCONF, I2S_TRANS_MSB_SHIFT);
   }
 #endif
 }
