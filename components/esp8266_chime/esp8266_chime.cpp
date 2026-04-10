@@ -239,8 +239,8 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   if (this->sd_pin_ != nullptr) {
     this->sd_pin_->digital_write(false); // LOW = enable amplifier
     // Only delay if we are just starting from IDLE/stop, otherwise it might click between loops.
-    // However, 50ms delay pop protection is requested.
-    delay(50); // 50ms delay
+    // However, 300ms delay pop protection is requested.
+    delay(300); // 300ms delay
   }
 }
 
