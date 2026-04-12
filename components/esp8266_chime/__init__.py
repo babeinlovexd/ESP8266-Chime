@@ -16,6 +16,14 @@ CONF_DOUT = "dout"
 CONF_SD = "sd"
 CONF_I2S_FORMAT = "i2s_format"
 
+CONF_LED = "led"
+CONF_OUT = "out"
+CONF_FREQUENZ = "frequenz"
+CONF_LED_DURATION = "duration"
+CONF_LED_ACTIVATION = "activation"
+
+CONF_CHIME_MUTE = "chime_mute"
+
 CONF_CHIME_VOLUME = "chime_volume"
 CONF_CHIME_REPS = "chime_reps"
 CONF_ALARM_VOLUME = "alarm_volume"
@@ -35,11 +43,29 @@ Esp8266ChimePlayButton = esp8266_chime_ns.class_("Esp8266ChimePlayButton", butto
 
 Esp8266AlarmLoopSwitch = esp8266_chime_ns.class_("Esp8266AlarmLoopSwitch", switch.Switch, cg.Component)
 
+Esp8266LedDurationNumber = esp8266_chime_ns.class_("Esp8266LedDurationNumber", number.Number, cg.Component)
+Esp8266LedEnableSwitch = esp8266_chime_ns.class_("Esp8266LedEnableSwitch", switch.Switch, cg.Component)
+Esp8266ChimeMuteSwitch = esp8266_chime_ns.class_("Esp8266ChimeMuteSwitch", switch.Switch, cg.Component)
+
 I2SFormat = esp8266_chime_ns.enum("I2SFormat")
 I2S_FORMAT_OPTIONS = {
     "PHILIPS": I2SFormat.I2S_FORMAT_PHILIPS,
     "LSBJ": I2SFormat.I2S_FORMAT_LSBJ,
 }
+
+LEDFrequency = esp8266_chime_ns.enum("LEDFrequency")
+LED_FREQUENZ_OPTIONS = {
+    "low": LEDFrequency.LED_FREQ_LOW,
+    "middle": LEDFrequency.LED_FREQ_MIDDLE,
+    "high": LEDFrequency.LED_FREQ_HIGH,
+}
+
+LED_SCHEMA = cv.Schema({
+    cv.Required(CONF_OUT): pins.gpio_output_pin_schema,
+    cv.Optional(CONF_FREQUENZ, default="low"): cv.enum(LED_FREQUENZ_OPTIONS, lower=True),
+    cv.Optional(CONF_LED_DURATION, default={"name": "LED Blinkdauer"}): number.number_schema(Esp8266LedDurationNumber).extend(cv.COMPONENT_SCHEMA),
+    cv.Optional(CONF_LED_ACTIVATION, default={"name": "LED Aktivieren"}): switch.switch_schema(Esp8266LedEnableSwitch).extend(cv.COMPONENT_SCHEMA),
+})
 
 CONFIG_SCHEMA = cv.Schema(
     {
@@ -59,7 +85,11 @@ CONFIG_SCHEMA = cv.Schema(
 
         cv.Optional(CONF_CHIME_PLAY, default={"name": "Chime Abspielen"}): button.button_schema(Esp8266ChimePlayButton).extend(cv.COMPONENT_SCHEMA),
 
+        cv.Optional(CONF_CHIME_MUTE, default={"name": "Chime Mute"}): switch.switch_schema(Esp8266ChimeMuteSwitch).extend(cv.COMPONENT_SCHEMA),
+
         cv.Optional(CONF_ALARM_LOOP, default={"name": "Alarm Loop"}): switch.switch_schema(Esp8266AlarmLoopSwitch).extend(cv.COMPONENT_SCHEMA),
+
+        cv.Optional(CONF_LED): LED_SCHEMA,
     }
 ).extend(cv.COMPONENT_SCHEMA)
 
@@ -138,10 +168,39 @@ async def to_code(config):
     cg.add(b_var.set_parent(var))
     cg.add(var.set_chime_play_button(b_var))
 
-    # Switch Entity
+    # Switch Entities
     conf = config[CONF_ALARM_LOOP]
     sw_var = cg.new_Pvariable(conf[CONF_ID])
     await cg.register_component(sw_var, conf)
     await switch.register_switch(sw_var, conf)
     cg.add(sw_var.set_parent(var))
     cg.add(var.set_alarm_loop_switch(sw_var))
+
+    conf = config[CONF_CHIME_MUTE]
+    sw_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(sw_var, conf)
+    await switch.register_switch(sw_var, conf)
+    cg.add(sw_var.set_parent(var))
+    cg.add(var.set_chime_mute_switch(sw_var))
+
+    if CONF_LED in config:
+        led_config = config[CONF_LED]
+        led_pin = await cg.gpio_pin_expression(led_config[CONF_OUT])
+        cg.add(var.set_led_pin(led_pin))
+        cg.add(var.set_led_frequenz(led_config[CONF_FREQUENZ]))
+
+        # Blinkdauer Slider (1-15s)
+        conf = led_config[CONF_LED_DURATION]
+        dn_var = cg.new_Pvariable(conf[CONF_ID])
+        await cg.register_component(dn_var, conf)
+        await number.register_number(dn_var, conf, min_value=1, max_value=15, step=1)
+        cg.add(dn_var.set_parent(var))
+        cg.add(var.set_led_duration_number(dn_var))
+
+        # LED On/Off Switch
+        conf = led_config[CONF_LED_ACTIVATION]
+        ls_var = cg.new_Pvariable(conf[CONF_ID])
+        await cg.register_component(ls_var, conf)
+        await switch.register_switch(ls_var, conf)
+        cg.add(ls_var.set_parent(var))
+        cg.add(var.set_led_enable_switch(ls_var))

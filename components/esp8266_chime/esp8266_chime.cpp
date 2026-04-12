@@ -20,6 +20,11 @@ void Esp8266Chime::setup() {
     this->sd_pin_->digital_write(true); // HIGH = mute LM4871
   }
 
+  if (this->led_pin_ != nullptr) {
+    this->led_pin_->setup();
+    this->led_pin_->digital_write(false);
+  }
+
 #ifdef USE_ESP8266
   i2s_begin();
   i2s_set_rate(8000);
@@ -34,6 +39,41 @@ void Esp8266Chime::setup() {
 
 void Esp8266Chime::loop() {
 #ifdef USE_ESP8266
+  if (this->led_pin_ != nullptr) {
+    if (this->led_enable_switch_ != nullptr && this->led_enable_switch_->state) {
+      uint32_t now = millis();
+      float duration_s = this->led_duration_number_ != nullptr ? this->led_duration_number_->state : 0.0f;
+
+      // Nur blinken, wenn wir innerhalb der eingestellten Zeit sind und ein Sound getriggert wurde (play_start_time_ > 0)
+      if (this->play_start_time_ > 0 && now - this->play_start_time_ < (duration_s * 1000)) {
+        uint32_t interval = 900; // low
+        if (this->led_freq_ == LEDFrequency::LED_FREQ_MIDDLE) interval = 400;
+        if (this->led_freq_ == LEDFrequency::LED_FREQ_HIGH) interval = 150;
+
+        if (now - this->last_led_toggle_ > interval) {
+          this->led_state_ = !this->led_state_;
+          this->led_pin_->digital_write(this->led_state_);
+          this->last_led_toggle_ = now;
+        }
+      } else {
+        // Zeit abgelaufen -> LED aus
+        if (this->led_state_ || this->play_start_time_ == 0) {
+          this->led_state_ = false;
+          this->led_pin_->digital_write(false);
+        }
+        if (this->play_start_time_ > 0 && now - this->play_start_time_ >= (duration_s * 1000)) {
+          this->play_start_time_ = 0; // reset
+        }
+      }
+    } else {
+      // Wenn der Schalter deaktiviert wurde, stellen wir sicher, dass die LED aus ist
+      if (this->led_state_) {
+        this->led_state_ = false;
+        this->led_pin_->digital_write(false);
+      }
+    }
+  }
+
   if (this->state_ == ChimeState::PLAYING_CHIME || this->state_ == ChimeState::PLAYING_ALARM) {
     if (this->current_data_ != nullptr && this->current_pos_ < this->current_len_) {
       // Feed I2S FIFO as much as possible without blocking
@@ -83,6 +123,12 @@ void Esp8266Chime::loop() {
 void Esp8266Chime::play_chime() {
   if (this->state_ == ChimeState::PLAYING_ALARM) {
     ESP_LOGI(TAG, "Alarm is active. Chime request ignored.");
+    return;
+  }
+
+  if (this->chime_mute_switch_ != nullptr && this->chime_mute_switch_->state) {
+    ESP_LOGI(TAG, "Chime is muted. Not playing sound, but LED can blink.");
+    this->play_start_time_ = millis();
     return;
   }
 
@@ -236,6 +282,8 @@ void Esp8266Chime::play_internal(const std::string& selected) {
 
   ESP_LOGD(TAG, "Playing sound: %s", selected.c_str());
 
+  this->play_start_time_ = millis();
+
   if (this->sd_pin_ != nullptr) {
     this->sd_pin_->digital_write(false); // LOW = enable amplifier
     // Only delay if we are just starting from IDLE/stop, otherwise it might click between loops.
@@ -381,6 +429,51 @@ void Esp8266AlarmLoopSwitch::write_state(bool state) {
   if (this->parent_) {
     this->parent_->handle_alarm_switch(state);
   }
+}
+
+void Esp8266ChimeMuteSwitch::setup() {
+  bool state;
+  this->pref_ = global_preferences->make_preference<bool>(this->get_object_id_hash());
+  if (this->pref_.load(&state)) {
+    this->publish_state(state);
+  } else {
+    this->publish_state(false);
+  }
+}
+
+void Esp8266ChimeMuteSwitch::write_state(bool state) {
+  this->publish_state(state);
+  this->pref_.save(&state);
+}
+
+void Esp8266LedDurationNumber::setup() {
+  float value;
+  this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
+  if (this->pref_.load(&value)) {
+    this->publish_state(value);
+  } else {
+    this->publish_state(5.0);
+  }
+}
+
+void Esp8266LedDurationNumber::control(float value) {
+  this->publish_state(value);
+  this->pref_.save(&value);
+}
+
+void Esp8266LedEnableSwitch::setup() {
+  bool state;
+  this->pref_ = global_preferences->make_preference<bool>(this->get_object_id_hash());
+  if (this->pref_.load(&state)) {
+    this->publish_state(state);
+  } else {
+    this->publish_state(false);
+  }
+}
+
+void Esp8266LedEnableSwitch::write_state(bool state) {
+  this->publish_state(state);
+  this->pref_.save(&state);
 }
 
 }  // namespace esp8266_chime

@@ -38,10 +38,14 @@ Sobald das Gerät geflasht und mit Home Assistant verbunden ist, werden folgende
   2. `number`: "Chime Wiederholungen" (1-5x).
   3. `select`: "Chime Ton" (Auswahl aus 30 Sounds).
   4. `button`: "Chime Abspielen" (Startet den Gong).
+  5. `switch`: "Chime Mute" (Gong lautlos schalten, LED blinkt trotzdem).
 * **Sektion 2 (Alarm):**
-  5. `number`: "Alarm Lautstärke" (0-100%).
-  6. `select`: "Alarm Ton" (Auswahl aus 30 Sounds).
-  7. `switch`: "Alarm Loop" (Endlosschleife, bis der Schalter deaktiviert wird).
+  6. `number`: "Alarm Lautstärke" (0-100%).
+  7. `select`: "Alarm Ton" (Auswahl aus 30 Sounds).
+  8. `switch`: "Alarm Loop" (Endlosschleife, bis der Schalter deaktiviert wird).
+* **Sektion 3 (LED - optional):**
+  9. `number`: "LED Blinkdauer" (Dauer in Sekunden).
+  10. `switch`: "LED Aktivieren" (Aktiviert das Blinken).
 
 ---
 
@@ -87,6 +91,13 @@ esp8266_chime:
   sd:
     number: GPIO12
     inverted: false
+  led: # Optional
+    out: GPIO14
+    frequenz: high # low (900ms), middle (400ms), high (150ms)
+    duration:
+      name: "LED Blinkdauer"
+    activation:
+      name: "LED Aktivieren"
 ```
 
 ---
