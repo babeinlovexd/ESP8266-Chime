@@ -20,6 +20,12 @@ enum I2SFormat {
   I2S_FORMAT_LSBJ = 1
 };
 
+enum LEDFrequency {
+  LED_FREQ_LOW = 0,
+  LED_FREQ_MIDDLE = 1,
+  LED_FREQ_HIGH = 2
+};
+
 enum class ChimeState {
   IDLE,
   PLAYING_CHIME,
@@ -40,10 +46,18 @@ class Esp8266Chime : public Component {
 
   void set_i2s_format(I2SFormat format) { this->i2s_format_ = format; }
 
+  void set_led_pin(GPIOPin *pin) { this->led_pin_ = pin; }
+  void set_led_frequenz(LEDFrequency freq) { this->led_freq_ = freq; }
+
   void set_chime_volume_number(number::Number *num) { this->chime_volume_number_ = num; }
   void set_chime_reps_number(number::Number *num) { this->chime_reps_number_ = num; }
   void set_chime_sound_select(select::Select *sel) { this->chime_sound_select_ = sel; }
   void set_chime_play_button(button::Button *btn) { this->chime_play_button_ = btn; }
+
+  void set_led_duration_number(number::Number *num) { this->led_duration_number_ = num; }
+  void set_led_enable_switch(switch_::Switch *sw) { this->led_enable_switch_ = sw; }
+
+  void set_chime_mute_switch(switch_::Switch *sw) { this->chime_mute_switch_ = sw; }
 
   void set_alarm_volume_number(number::Number *num) { this->alarm_volume_number_ = num; }
   void set_alarm_sound_select(select::Select *sel) { this->alarm_sound_select_ = sel; }
@@ -69,6 +83,15 @@ class Esp8266Chime : public Component {
   number::Number *alarm_volume_number_{nullptr};
   select::Select *alarm_sound_select_{nullptr};
   switch_::Switch *alarm_loop_switch_{nullptr};
+  switch_::Switch *chime_mute_switch_{nullptr};
+
+  number::Number *led_duration_number_{nullptr};
+  switch_::Switch *led_enable_switch_{nullptr};
+  GPIOPin *led_pin_{nullptr};
+  LEDFrequency led_freq_{LED_FREQ_LOW};
+  uint32_t play_start_time_{0};
+  uint32_t last_led_toggle_{0};
+  bool led_state_{false};
 
   I2SFormat i2s_format_{I2S_FORMAT_PHILIPS};
 
@@ -155,6 +178,42 @@ class Esp8266AlarmSoundSelect : public select::Select, public Component {
 };
 
 class Esp8266AlarmLoopSwitch : public switch_::Switch, public Component {
+ public:
+  void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
+
+  void setup() override;
+ protected:
+  ESPPreferenceObject pref_;
+
+  void write_state(bool state) override;
+  Esp8266Chime *parent_{nullptr};
+};
+
+class Esp8266ChimeMuteSwitch : public switch_::Switch, public Component {
+ public:
+  void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
+
+  void setup() override;
+ protected:
+  ESPPreferenceObject pref_;
+
+  void write_state(bool state) override;
+  Esp8266Chime *parent_{nullptr};
+};
+
+class Esp8266LedDurationNumber : public number::Number, public Component {
+ public:
+  void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
+
+  void setup() override;
+ protected:
+  ESPPreferenceObject pref_;
+
+  void control(float value) override;
+  Esp8266Chime *parent_{nullptr};
+};
+
+class Esp8266LedEnableSwitch : public switch_::Switch, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
