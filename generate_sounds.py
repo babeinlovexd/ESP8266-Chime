@@ -323,7 +323,7 @@ def wav_to_h():
         'sound_arcade_start.wav', 'sound_sci_fi_alert.wav', 'sound_soft_bell.wav', 'sound_magic_sparkle.wav', 'sound_bass_drop.wav',
 
         'sound_tts_essen.wav', 'sound_tts_waschmaschine.wav', 'sound_tts_trockner.wav',
-        'sound_tts_post.wav', 'sound_tts_runter.wav', 'sound_tts_muell_schwarz.wav',
+        'sound_tts_post.wav', 'sound_tts_muell_schwarz.wav',
         'sound_tts_muell_gruen.wav', 'sound_tts_muell_gelb.wav', 'sound_tts_glas.wav',
         'sound_tts_zaehne.wav'
     ]

@@ -306,9 +306,6 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   } else if (selected == "TTS: Post ist da") {
     this->current_data_ = sound_tts_post;
     this->current_len_ = sound_tts_post_len;
-  } else if (selected == "TTS: Bitte runter kommen") {
-    this->current_data_ = sound_tts_runter;
-    this->current_len_ = sound_tts_runter_len;
   } else if (selected == "TTS: Schwarze Mülltonne muss raus") {
     this->current_data_ = sound_tts_muell_schwarz;
     this->current_len_ = sound_tts_muell_schwarz_len;
