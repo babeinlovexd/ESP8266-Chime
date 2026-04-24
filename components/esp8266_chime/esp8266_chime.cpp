@@ -92,12 +92,6 @@ void Esp8266Chime::loop() {
         uint32_t stereo_sample = ((uint32_t)(uint16_t)sample << 16) | (uint16_t)sample;
         // ESP8266 i2s_write_sample_nb returns true if it fits in the buffer
         if (i2s_write_sample_nb(stereo_sample)) {
-            if (this->current_is_4000hz_) {
-                // To play 4000Hz at 8000Hz I2S, write the same sample a second time
-                while (!i2s_write_sample_nb(stereo_sample)) {
-                    yield(); // Wait until buffer has space for the duplicate
-                }
-            }
             this->current_pos_ += 2;
         } else {
             // Buffer full, come back next loop
@@ -209,7 +203,7 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   this->current_data_ = nullptr;
   this->current_len_ = 0;
   this->current_pos_ = 0;
-  this->current_is_4000hz_ = (selected.find("TTS") != std::string::npos);
+
 
   if (selected == "1. Ding Dong") {
     this->current_data_ = sound_dingdong;
@@ -220,64 +214,37 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   } else if (selected == "3. Sweep Sound") {
     this->current_data_ = sound_sweep;
     this->current_len_ = sound_sweep_len;
-  } else if (selected == "5. G5 Chime") {
+  } else if (selected == "4. G5 Chime") {
     this->current_data_ = sound_chime;
     this->current_len_ = sound_chime_len;
-  } else if (selected == "7. Doorbell") {
+  } else if (selected == "5. Doorbell") {
     this->current_data_ = sound_doorbell;
     this->current_len_ = sound_doorbell_len;
-  } else if (selected == "10. Success") {
-    this->current_data_ = sound_success;
-    this->current_len_ = sound_success_len;
-  } else if (selected == "11. Washing Machine") {
-    this->current_data_ = sound_washing_machine;
-    this->current_len_ = sound_washing_machine_len;
-  } else if (selected == "12. Mail Delivered") {
-    this->current_data_ = sound_mail_delivered;
-    this->current_len_ = sound_mail_delivered_len;
-  } else if (selected == "13. Window Open") {
-    this->current_data_ = sound_window_open;
-    this->current_len_ = sound_window_open_len;
-  } else if (selected == "14. Pre Alarm") {
+  } else if (selected == "6. Pre Alarm") {
     this->current_data_ = sound_pre_alarm;
     this->current_len_ = sound_pre_alarm_len;
-  } else if (selected == "15. Access Granted") {
-    this->current_data_ = sound_access_granted;
-    this->current_len_ = sound_access_granted_len;
-  } else if (selected == "16. Notification Chime") {
+  } else if (selected == "7. Notification Chime") {
     this->current_data_ = sound_noti_chime;
     this->current_len_ = sound_noti_chime_len;
-  } else if (selected == "17. Notification Bloop") {
+  } else if (selected == "8. Notification Bloop") {
     this->current_data_ = sound_noti_bloop;
     this->current_len_ = sound_noti_bloop_len;
-  } else if (selected == "18. Notification Pop") {
-    this->current_data_ = sound_noti_pop;
-    this->current_len_ = sound_noti_pop_len;
-  } else if (selected == "19. Notification Sparkle") {
-    this->current_data_ = sound_noti_sparkle;
-    this->current_len_ = sound_noti_sparkle_len;
-  } else if (selected == "20. Level Up") {
+  } else if (selected == "9. Level Up") {
     this->current_data_ = sound_level_up;
     this->current_len_ = sound_level_up_len;
-  } else if (selected == "21. Game Over") {
-    this->current_data_ = sound_game_over;
-    this->current_len_ = sound_game_over_len;
-  } else if (selected == "22. Coin") {
+  } else if (selected == "10. Coin") {
     this->current_data_ = sound_coin;
     this->current_len_ = sound_coin_len;
-  } else if (selected == "23. Notification Alert") {
-    this->current_data_ = sound_noti_alert;
-    this->current_len_ = sound_noti_alert_len;
-  } else if (selected == "24. Glass Ping") {
+  } else if (selected == "11. Glass Ping") {
     this->current_data_ = sound_glass_ping;
     this->current_len_ = sound_glass_ping_len;
-  } else if (selected == "25. Elevator Ding") {
+  } else if (selected == "12. Elevator Ding") {
     this->current_data_ = sound_elevator_ding;
     this->current_len_ = sound_elevator_ding_len;
-  } else if (selected == "28. Soft Bell") {
+  } else if (selected == "13. Soft Bell") {
     this->current_data_ = sound_soft_bell;
     this->current_len_ = sound_soft_bell_len;
-  } else if (selected == "29. Magic Sparkle") {
+  } else if (selected == "14. Magic Sparkle") {
     this->current_data_ = sound_magic_sparkle;
     this->current_len_ = sound_magic_sparkle_len;
 
@@ -342,7 +309,7 @@ void Esp8266Chime::stop() {
   this->current_data_ = nullptr;
   this->current_len_ = 0;
   this->current_pos_ = 0;
-  this->current_is_4000hz_ = false;
+
 
   if (this->sd_pin_ != nullptr) {
     this->sd_pin_->digital_write(true); // HIGH = mute amplifier

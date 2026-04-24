@@ -153,16 +153,10 @@ async def to_code(config):
 
     # Select Entities
     options = [
-        "1. Ding Dong", "2. Trill Alarm", "3. Sweep Sound", "5. G5 Chime",
-        "7. Doorbell", "10. Success",
-        "11. Washing Machine", "12. Mail Delivered", "13. Window Open", "14. Pre Alarm", "15. Access Granted",
-        "16. Notification Chime", "17. Notification Bloop", "18. Notification Pop", "19. Notification Sparkle", "20. Level Up",
-        "21. Game Over", "22. Coin", "23. Notification Alert", "24. Glass Ping", "25. Elevator Ding",
-        "28. Soft Bell", "29. Magic Sparkle",
+        "1. Ding Dong", "2. Trill Alarm", "3. Sweep Sound", "4. G5 Chime", "5. Doorbell", "6. Pre Alarm", "7. Notification Chime", "8. Notification Bloop", "9. Level Up", "10. Coin", "11. Glass Ping", "12. Elevator Ding", "13. Soft Bell", "14. Magic Sparkle",
         "TTS: Essen ist Fertig", "TTS: Waschmaschine ist fertig", "TTS: Trockner ist fertig",
         "TTS: Post ist da", "TTS: Schwarze Mülltonne muss raus",
-        "TTS: Grüne Mülltonne muss raus", "TTS: Gelbe Mülltonne muss raus", "TTS: Glas muss raus",
-
+        "TTS: Grüne Mülltonne muss raus", "TTS: Gelbe Mülltonne muss raus", "TTS: Glas muss raus"
     ]
 
 
