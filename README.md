@@ -14,15 +14,15 @@ Diese benutzerdefinierte (external component) ESPHome-Komponente wurde für das 
 ### 🔥 Was kann das Teil ALLES?
 Dieses Plugin ist auf absolute Zuverlässigkeit und minimalen Aufwand ausgelegt:
 * **Eigene C++ I2S-Wiedergabe:** Kein Rückgriff mehr auf fehleranfällige externe Bibliotheken (wie ESP8266Audio). Audio Playback läuft nativ über `<core_esp8266_i2s.h>` und `i2s_write_sample_nb()`. Dies sorgt für reibungslose PlatformIO-Kompilierungen und maximale Zuverlässigkeit ohne Dependency-Konflikte.
-* **30 Integrierte PROGMEM Sounds:**
-  - **Standard:** Ding Dong, Trill Alarm, Sweep Sound, Solid Beep, G5 Chime, Siren, Doorbell, Notification, Error, Success.
-  - **Smart Home Eskalation:** Washing Machine, Mail Delivered, Window Open, Pre Alarm.
-  - **Sci-Fi / UI:** Access Granted, Notification Chime, Notification Bloop, Notification Pop, Notification Sparkle, Sci Fi Alert.
-  - **Retro Gaming:** Level Up, Game Over, Coin, Arcade Start.
-  - **Organisch & Specials:** Notification Alert, Glass Ping, Elevator Ding, Soft Bell, Magic Sparkle, Bass Drop.
-  (Alle 8000Hz, Mono, als Hex-Arrays integriert). (Alle 8000Hz, Mono, als Hex-Arrays integriert).
-* **Duale State Machine (Chime & Alarm):** Intelligente Prioritätssteuerung. Der Alarm hat **höchste Priorität** und loopt kontinuierlich, bis er manuell deaktiviert wird. Laufende Chimes (Gongs) werden sofort für den Alarm unterbrochen, und der Chime-Button wird während eines Alarms ignoriert.
-* **Vollautomatische Home Assistant Integration:** Erstellt aus einer minimalen YAML-Konfiguration vollautomatisch 7 Entitäten in Home Assistant. Komplett Plug & Play – keine zusätzlichen `number`, `select`, `button` oder `switch` Plattform-Blöcke in der YAML nötig!
+* **14 Integrierte PROGMEM Sounds + 8 TTS Ansagen:**
+  - **Standard & Alarm:** Ding Dong, Trill Alarm, Sweep Sound, G5 Chime, Doorbell, Pre Alarm.
+  - **Sci-Fi / UI:** Notification Chime, Notification Bloop.
+  - **Gaming & Specials:** Level Up, Coin, Glass Ping, Elevator Ding, Soft Bell, Magic Sparkle.
+  - **Offline TTS Ansagen:** "Essen ist Fertig", "Waschmaschine ist fertig", "Trockner ist fertig", "Post ist da", "Schwarze Mülltonne muss raus", "Grüne Mülltonne muss raus", "Gelbe Mülltonne muss raus", "Glas muss raus".
+  (Alle 8000Hz, Mono, als Hex-Arrays integriert - speziell für 1MB ESP8266 Speicher optimiert).
+* **Tri-State Machine (Chime, Alarm & Notify):** Intelligente Prioritätssteuerung. Der Alarm hat **höchste Priorität** und loopt kontinuierlich, bis er manuell deaktiviert wird. Laufende Chimes (Gongs) oder TTS-Ansagen (Notify) werden sofort für den Alarm unterbrochen.
+* **Offline Text-to-Speech (TTS):** Das System liefert mehrere fertig generierte, sprachliche Status-Ansagen als komprimierte 16-bit 8000Hz WAV-Dateien aus (z.B. "Essen ist fertig", "Waschmaschine ist fertig", etc.). Ideal für Smarthome-Updates ohne Cloud!
+* **Vollautomatische Home Assistant Integration:** Erstellt aus einer minimalen YAML-Konfiguration vollautomatisch 10 Entitäten in Home Assistant. Komplett Plug & Play – keine zusätzlichen `number`, `select`, `button` oder `switch` Plattform-Blöcke in der YAML nötig!
 * **Smarter Popschutz (Standby-Logik):** Steuert den Shutdown-Pin deines Verstärkers (LOW = an, HIGH = stumm) mit einem integrierten 50ms Delay vor der Wiedergabe, um Knack-Geräusche beim Einschalten zu vermeiden.
 * **PT8211 DAC Kompatibilität:** 16-Bit Mono-Samples aus dem PROGMEM werden on-the-fly zu 32-Bit Stereo-Daten kombiniert, um den PT8211 DAC korrekt anzusteuern (Linker Kanal in den unteren 16 Bits, Rechter Kanal in den oberen 16 Bits).
 
@@ -31,7 +31,7 @@ Dieses Plugin ist auf absolute Zuverlässigkeit und minimalen Aufwand ausgelegt:
 
 ## ✨ Automatisch erzeugte Entitäten in Home Assistant
 
-Sobald das Gerät geflasht und mit Home Assistant verbunden ist, werden folgende 7 Entitäten vollautomatisch erzeugt und miteinander verknüpft:
+Sobald das Gerät geflasht und mit Home Assistant verbunden ist, werden folgende 10 Entitäten vollautomatisch erzeugt und miteinander verknüpft:
 
 * **Sektion 1 (Chime/Gong):**
   1. `number`: "Chime Lautstärke" (0-100%).
@@ -43,9 +43,13 @@ Sobald das Gerät geflasht und mit Home Assistant verbunden ist, werden folgende
   6. `number`: "Alarm Lautstärke" (0-100%).
   7. `select`: "Alarm Ton" (Auswahl aus 30 Sounds).
   8. `switch`: "Alarm Loop" (Endlosschleife, bis der Schalter deaktiviert wird).
-* **Sektion 3 (LED - optional):**
-  9. `number`: "LED Blinkdauer" (Dauer in Sekunden).
-  10. `switch`: "LED Aktivieren" (Aktiviert das Blinken).
+* **Sektion 3 (Notify / TTS):**
+  9. `number`: "Notify Lautstärke" (0-100%).
+  10. `select`: "Notify Ton" (Wähle hier speziell die TTS Ansagen).
+  11. `button`: "Notify Abspielen" (Spielt die Status-Ansage einmalig ab).
+* **Sektion 4 (LED - optional):**
+  12. `number`: "LED Blinkdauer" (Dauer in Sekunden).
+  13. `switch`: "LED Aktivieren" (Aktiviert das Blinken).
 
 ---
 
@@ -91,6 +95,12 @@ esp8266_chime:
   sd:
     number: GPIO12
     inverted: false
+  notify_volume:
+    name: "Notify Lautstärke"
+  notify_sound:
+    name: "Notify Ton"
+  notify_play:
+    name: "Notify Abspielen"
   led: # Optional
     out: GPIO14
     frequenz: high # low (900ms), middle (400ms), high (150ms)
