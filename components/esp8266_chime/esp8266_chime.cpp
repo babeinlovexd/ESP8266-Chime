@@ -184,10 +184,10 @@ void Esp8266Chime::play_alarm() {
 void Esp8266Chime::play_notify() {
   if (this->state_ == ChimeState::PLAYING_ALARM) return;
 
-  if (this->notify_sound_select_->state.empty() && this->notify_sound_select_->traits.get_options().size() > 0) {
+  if (!this->notify_sound_select_->has_state() && this->notify_sound_select_->traits.get_options().size() > 0) {
     this->current_sound_ = this->notify_sound_select_->traits.get_options()[0];
   } else {
-    this->current_sound_ = this->notify_sound_select_->state;
+    this->current_sound_ = std::string(this->notify_sound_select_->current_option());
   }
 
   this->set_volume(this->notify_volume_number_->state / 100.0f);
