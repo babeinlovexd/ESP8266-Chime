@@ -161,7 +161,7 @@ async def to_code(config):
         "26. Arcade Start", "27. Sci Fi Alert", "28. Soft Bell", "29. Magic Sparkle", "30. Bass Drop",
 
         "TTS: Essen ist Fertig", "TTS: Waschmaschine ist fertig", "TTS: Trockner ist fertig",
-        "TTS: Post ist da", "TTS: Bitte runter kommen", "TTS: Schwarze Mülltonne muss raus",
+        "TTS: Post ist da", "TTS: Schwarze Mülltonne muss raus",
         "TTS: Grüne Mülltonne muss raus", "TTS: Gelbe Mülltonne muss raus", "TTS: Glas muss raus",
         "TTS: Zähne putzen"
     ]
