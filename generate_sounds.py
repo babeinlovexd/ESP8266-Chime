@@ -320,8 +320,14 @@ def wav_to_h():
         'sound_washing_machine.wav', 'sound_mail_delivered.wav', 'sound_window_open.wav', 'sound_pre_alarm.wav', 'sound_access_granted.wav',
         'sound_noti_chime.wav', 'sound_noti_bloop.wav', 'sound_noti_pop.wav', 'sound_noti_sparkle.wav', 'sound_level_up.wav',
         'sound_game_over.wav', 'sound_coin.wav', 'sound_noti_alert.wav', 'sound_glass_ping.wav', 'sound_elevator_ding.wav',
-        'sound_arcade_start.wav', 'sound_sci_fi_alert.wav', 'sound_soft_bell.wav', 'sound_magic_sparkle.wav', 'sound_bass_drop.wav'
+        'sound_arcade_start.wav', 'sound_sci_fi_alert.wav', 'sound_soft_bell.wav', 'sound_magic_sparkle.wav', 'sound_bass_drop.wav',
+
+        'sound_tts_essen.wav', 'sound_tts_waschmaschine.wav', 'sound_tts_trockner.wav',
+        'sound_tts_post.wav', 'sound_tts_runter.wav', 'sound_tts_muell_schwarz.wav',
+        'sound_tts_muell_gruen.wav', 'sound_tts_muell_gelb.wav', 'sound_tts_glas.wav',
+        'sound_tts_zaehne.wav'
     ]
+
     out = "#pragma once\n#include <pgmspace.h>\n\n"
     for f in files:
         with open(f, 'rb') as w:

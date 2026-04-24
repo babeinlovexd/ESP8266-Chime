@@ -74,7 +74,7 @@ void Esp8266Chime::loop() {
     }
   }
 
-  if (this->state_ == ChimeState::PLAYING_CHIME || this->state_ == ChimeState::PLAYING_ALARM) {
+  if (this->state_ == ChimeState::PLAYING_CHIME || this->state_ == ChimeState::PLAYING_ALARM || this->state_ == ChimeState::PLAYING_NOTIFY) {
     if (this->current_data_ != nullptr && this->current_pos_ < this->current_len_) {
       // Feed I2S FIFO as much as possible without blocking
       while (this->current_pos_ < this->current_len_) {
@@ -113,6 +113,13 @@ void Esp8266Chime::loop() {
         } else if (this->state_ == ChimeState::PLAYING_ALARM) {
           // Alarm loops endlessly until switch is toggled off
           this->play_internal(this->current_sound_);
+        } else if (this->state_ == ChimeState::PLAYING_NOTIFY) {
+          this->current_rep_++;
+          if (this->current_rep_ < this->target_reps_) {
+            this->play_internal(this->current_sound_);
+          } else {
+            this->stop();
+          }
         }
       }
     }
@@ -173,6 +180,24 @@ void Esp8266Chime::play_alarm() {
 
   this->play_internal(this->current_sound_);
 }
+
+void Esp8266Chime::play_notify() {
+  if (this->state_ == ChimeState::PLAYING_ALARM) return;
+
+  if (this->notify_sound_select_->state.empty() && this->notify_sound_select_->traits.get_options().size() > 0) {
+    this->current_sound_ = this->notify_sound_select_->traits.get_options()[0];
+  } else {
+    this->current_sound_ = this->notify_sound_select_->state;
+  }
+
+  this->set_volume(this->notify_volume_number_->state / 100.0f);
+  this->state_ = ChimeState::PLAYING_NOTIFY;
+  this->current_rep_ = 1;
+  this->target_reps_ = 1;
+
+  this->play_internal(this->current_sound_);
+}
+
 
 void Esp8266Chime::play_internal(const std::string& selected) {
   this->current_data_ = nullptr;
@@ -269,6 +294,37 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   } else if (selected == "30. Bass Drop") {
     this->current_data_ = sound_bass_drop;
     this->current_len_ = sound_bass_drop_len;
+  } else if (selected == "TTS: Essen ist Fertig") {
+    this->current_data_ = sound_tts_essen;
+    this->current_len_ = sound_tts_essen_len;
+  } else if (selected == "TTS: Waschmaschine ist fertig") {
+    this->current_data_ = sound_tts_waschmaschine;
+    this->current_len_ = sound_tts_waschmaschine_len;
+  } else if (selected == "TTS: Trockner ist fertig") {
+    this->current_data_ = sound_tts_trockner;
+    this->current_len_ = sound_tts_trockner_len;
+  } else if (selected == "TTS: Post ist da") {
+    this->current_data_ = sound_tts_post;
+    this->current_len_ = sound_tts_post_len;
+  } else if (selected == "TTS: Bitte runter kommen") {
+    this->current_data_ = sound_tts_runter;
+    this->current_len_ = sound_tts_runter_len;
+  } else if (selected == "TTS: Schwarze Mülltonne muss raus") {
+    this->current_data_ = sound_tts_muell_schwarz;
+    this->current_len_ = sound_tts_muell_schwarz_len;
+  } else if (selected == "TTS: Grüne Mülltonne muss raus") {
+    this->current_data_ = sound_tts_muell_gruen;
+    this->current_len_ = sound_tts_muell_gruen_len;
+  } else if (selected == "TTS: Gelbe Mülltonne muss raus") {
+    this->current_data_ = sound_tts_muell_gelb;
+    this->current_len_ = sound_tts_muell_gelb_len;
+  } else if (selected == "TTS: Glas muss raus") {
+    this->current_data_ = sound_tts_glas;
+    this->current_len_ = sound_tts_glas_len;
+  } else if (selected == "TTS: Zähne putzen") {
+    this->current_data_ = sound_tts_zaehne;
+    this->current_len_ = sound_tts_zaehne_len;
+
   } else {
     ESP_LOGE(TAG, "Unknown sound selected: %s", selected.c_str());
     this->state_ = ChimeState::IDLE;
@@ -474,6 +530,46 @@ void Esp8266LedEnableSwitch::setup() {
 void Esp8266LedEnableSwitch::write_state(bool state) {
   this->publish_state(state);
   this->pref_.save(&state);
+}
+
+
+void Esp8266NotifyVolumeNumber::setup() {
+  float value;
+  this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
+  if (this->pref_.load(&value)) {
+    this->publish_state(value);
+  } else {
+    this->publish_state(100.0);
+  }
+}
+void Esp8266NotifyVolumeNumber::control(float value) {
+  this->publish_state(value);
+  this->pref_.save(&value);
+}
+
+void Esp8266NotifySoundSelect::setup() {
+  size_t index;
+  this->pref_ = global_preferences->make_preference<size_t>(this->get_object_id_hash());
+  if (this->pref_.load(&index) && index < this->traits.get_options().size()) {
+    this->publish_state(this->traits.get_options()[index]);
+  } else if (this->traits.get_options().size() > 0) {
+    this->publish_state(this->traits.get_options()[0]);
+  }
+}
+void Esp8266NotifySoundSelect::control(const std::string &value) {
+  this->publish_state(value);
+  const auto &options = this->traits.get_options();
+  auto it = std::find(options.begin(), options.end(), value);
+  if (it != options.end()) {
+    size_t index = std::distance(options.begin(), it);
+    this->pref_.save(&index);
+  }
+}
+
+void Esp8266NotifyPlayButton::press_action() {
+  if (this->parent_) {
+    this->parent_->play_notify();
+  }
 }
 
 }  // namespace esp8266_chime
