@@ -32,6 +32,11 @@ CONF_ALARM_SOUND = "alarm_sound"
 CONF_CHIME_PLAY = "chime_play"
 CONF_ALARM_LOOP = "alarm_loop"
 
+CONF_NOTIFY_VOLUME = "notify_volume"
+CONF_NOTIFY_SOUND = "notify_sound"
+CONF_NOTIFY_PLAY = "notify_play"
+
+
 Esp8266ChimeVolumeNumber = esp8266_chime_ns.class_("Esp8266ChimeVolumeNumber", number.Number, cg.Component)
 Esp8266ChimeRepsNumber = esp8266_chime_ns.class_("Esp8266ChimeRepsNumber", number.Number, cg.Component)
 Esp8266AlarmVolumeNumber = esp8266_chime_ns.class_("Esp8266AlarmVolumeNumber", number.Number, cg.Component)
@@ -42,6 +47,11 @@ Esp8266AlarmSoundSelect = esp8266_chime_ns.class_("Esp8266AlarmSoundSelect", sel
 Esp8266ChimePlayButton = esp8266_chime_ns.class_("Esp8266ChimePlayButton", button.Button, cg.Component)
 
 Esp8266AlarmLoopSwitch = esp8266_chime_ns.class_("Esp8266AlarmLoopSwitch", switch.Switch, cg.Component)
+
+Esp8266NotifyVolumeNumber = esp8266_chime_ns.class_("Esp8266NotifyVolumeNumber", number.Number, cg.Component)
+Esp8266NotifySoundSelect = esp8266_chime_ns.class_("Esp8266NotifySoundSelect", select.Select, cg.Component)
+Esp8266NotifyPlayButton = esp8266_chime_ns.class_("Esp8266NotifyPlayButton", button.Button, cg.Component)
+
 
 Esp8266LedDurationNumber = esp8266_chime_ns.class_("Esp8266LedDurationNumber", number.Number, cg.Component)
 Esp8266LedEnableSwitch = esp8266_chime_ns.class_("Esp8266LedEnableSwitch", switch.Switch, cg.Component)
@@ -88,6 +98,11 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_CHIME_MUTE, default={"name": "Chime Mute"}): switch.switch_schema(Esp8266ChimeMuteSwitch).extend(cv.COMPONENT_SCHEMA),
 
         cv.Optional(CONF_ALARM_LOOP, default={"name": "Alarm Loop"}): switch.switch_schema(Esp8266AlarmLoopSwitch).extend(cv.COMPONENT_SCHEMA),
+
+        cv.Optional(CONF_NOTIFY_VOLUME, default={"name": "Notify Lautstärke"}): number.number_schema(Esp8266NotifyVolumeNumber).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_NOTIFY_SOUND, default={"name": "Notify Ton"}): select.select_schema(Esp8266NotifySoundSelect).extend(cv.COMPONENT_SCHEMA),
+        cv.Optional(CONF_NOTIFY_PLAY, default={"name": "Notify Abspielen"}): button.button_schema(Esp8266NotifyPlayButton).extend(cv.COMPONENT_SCHEMA),
+
 
         cv.Optional(CONF_LED): LED_SCHEMA,
     }
@@ -143,8 +158,14 @@ async def to_code(config):
         "11. Washing Machine", "12. Mail Delivered", "13. Window Open", "14. Pre Alarm", "15. Access Granted",
         "16. Notification Chime", "17. Notification Bloop", "18. Notification Pop", "19. Notification Sparkle", "20. Level Up",
         "21. Game Over", "22. Coin", "23. Notification Alert", "24. Glass Ping", "25. Elevator Ding",
-        "26. Arcade Start", "27. Sci Fi Alert", "28. Soft Bell", "29. Magic Sparkle", "30. Bass Drop"
+        "26. Arcade Start", "27. Sci Fi Alert", "28. Soft Bell", "29. Magic Sparkle", "30. Bass Drop",
+
+        "TTS: Essen ist Fertig", "TTS: Waschmaschine ist fertig", "TTS: Trockner ist fertig",
+        "TTS: Post ist da", "TTS: Bitte runter kommen", "TTS: Schwarze Mülltonne muss raus",
+        "TTS: Grüne Mülltonne muss raus", "TTS: Gelbe Mülltonne muss raus", "TTS: Glas muss raus",
+        "TTS: Zähne putzen"
     ]
+
 
     conf = config[CONF_CHIME_SOUND]
     s_var = cg.new_Pvariable(conf[CONF_ID])
@@ -167,6 +188,28 @@ async def to_code(config):
     await button.register_button(b_var, conf)
     cg.add(b_var.set_parent(var))
     cg.add(var.set_chime_play_button(b_var))
+
+
+    conf = config[CONF_NOTIFY_VOLUME]
+    n_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(n_var, conf)
+    await number.register_number(n_var, conf, min_value=0, max_value=100, step=1)
+    cg.add(n_var.set_parent(var))
+    cg.add(var.set_notify_volume_number(n_var))
+
+    conf = config[CONF_NOTIFY_SOUND]
+    s_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(s_var, conf)
+    await select.register_select(s_var, conf, options=options)
+    cg.add(s_var.set_parent(var))
+    cg.add(var.set_notify_sound_select(s_var))
+
+    conf = config[CONF_NOTIFY_PLAY]
+    b_var = cg.new_Pvariable(conf[CONF_ID])
+    await cg.register_component(b_var, conf)
+    await button.register_button(b_var, conf)
+    cg.add(b_var.set_parent(var))
+    cg.add(var.set_notify_play_button(b_var))
 
     # Switch Entities
     conf = config[CONF_ALARM_LOOP]

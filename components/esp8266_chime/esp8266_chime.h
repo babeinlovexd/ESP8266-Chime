@@ -29,7 +29,8 @@ enum LEDFrequency {
 enum class ChimeState {
   IDLE,
   PLAYING_CHIME,
-  PLAYING_ALARM
+  PLAYING_ALARM,
+  PLAYING_NOTIFY
 };
 
 class Esp8266Chime : public Component {
@@ -65,6 +66,13 @@ class Esp8266Chime : public Component {
 
   void play_chime();
   void play_alarm();
+
+  void set_notify_volume_number(number::Number *num) { this->notify_volume_number_ = num; }
+  void set_notify_sound_select(select::Select *sel) { this->notify_sound_select_ = sel; }
+  void set_notify_play_button(button::Button *btn) { this->notify_play_button_ = btn; }
+
+  void play_notify();
+
   void stop();
   void set_volume(float volume); // 0.0 to 1.0
   void handle_alarm_switch(bool state);
@@ -81,6 +89,11 @@ class Esp8266Chime : public Component {
   button::Button *chime_play_button_{nullptr};
 
   number::Number *alarm_volume_number_{nullptr};
+
+  number::Number *notify_volume_number_{nullptr};
+  select::Select *notify_sound_select_{nullptr};
+  button::Button *notify_play_button_{nullptr};
+
   select::Select *alarm_sound_select_{nullptr};
   switch_::Switch *alarm_loop_switch_{nullptr};
   switch_::Switch *chime_mute_switch_{nullptr};
@@ -222,6 +235,35 @@ class Esp8266LedEnableSwitch : public switch_::Switch, public Component {
   ESPPreferenceObject pref_;
 
   void write_state(bool state) override;
+  Esp8266Chime *parent_{nullptr};
+};
+
+
+class Esp8266NotifyVolumeNumber : public number::Number, public Component {
+ public:
+  void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
+  void setup() override;
+ protected:
+  ESPPreferenceObject pref_;
+  void control(float value) override;
+  Esp8266Chime *parent_{nullptr};
+};
+
+class Esp8266NotifySoundSelect : public select::Select, public Component {
+ public:
+  void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
+  void setup() override;
+ protected:
+  ESPPreferenceObject pref_;
+  void control(const std::string &value) override;
+  Esp8266Chime *parent_{nullptr};
+};
+
+class Esp8266NotifyPlayButton : public button::Button, public Component {
+ public:
+  void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
+ protected:
+  void press_action() override;
   Esp8266Chime *parent_{nullptr};
 };
 
