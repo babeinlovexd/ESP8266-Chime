@@ -47,7 +47,7 @@ def gen_beep():
     samples = []
     for i in range(int(sr * 0.5)):
         samples.append(0.5 * math.sin(2 * math.pi * 800 * i / sr))
-    generate_wav('sound_beep.wav', samples)
+    generate_wav(samples)
 
 def gen_chime():
     # G5 (783.99 Hz)
@@ -64,7 +64,7 @@ def gen_siren():
     for i in range(int(sr * 2.0)):
         freq = 600 + 200 * math.sin(2 * math.pi * 2 * i / sr)
         samples.append(0.5 * math.sin(2 * math.pi * freq * i / sr))
-    generate_wav('sound_siren.wav', samples)
+    generate_wav(samples)
 
 def gen_doorbell():
     sr = 8000
@@ -88,7 +88,7 @@ def gen_notification():
     for i in range(int(sr * 0.4)):
         env = math.exp(-i / (sr * 0.2))
         samples.append(env * math.sin(2 * math.pi * 1100 * i / sr))
-    generate_wav('sound_notification.wav', samples)
+    generate_wav(samples)
 
 def gen_error():
     sr = 8000
@@ -99,7 +99,7 @@ def gen_error():
         samples.append(0.0)
     for i in range(int(sr * 0.6)):
         samples.append(0.5 * math.sin(2 * math.pi * 250 * i / sr))
-    generate_wav('sound_error.wav', samples)
+    generate_wav(samples)
 
 def gen_success():
     sr = 8000
@@ -224,7 +224,7 @@ def gen_arcade_start():
     for i in range(int(sr * 0.5)):
         freq = 400 + 400 * math.sin(2 * math.pi * 10 * i / sr)
         samples.append(0.4 * math.sin(2 * math.pi * freq * i / sr))
-    generate_wav('sound_arcade_start.wav', samples)
+    generate_wav(samples)
 
 def gen_sci_fi_alert():
     sr = 8000
@@ -235,7 +235,7 @@ def gen_sci_fi_alert():
             samples.append(0.4 * math.sin(2 * math.pi * freq * i / sr))
         for i in range(int(sr * 0.1)):
             samples.append(0.0)
-    generate_wav('sound_sci_fi_alert.wav', samples)
+    generate_wav(samples)
 
 def gen_soft_bell():
     sr = 8000
@@ -261,7 +261,7 @@ def gen_bass_drop():
     for i in range(int(sr * 1.5)):
         freq = max(30, 200 - 170 * (i / (sr * 1.5)))
         samples.append(0.6 * math.sin(2 * math.pi * freq * i / sr))
-    generate_wav('sound_bass_drop.wav', samples)
+    generate_wav(samples)
 
 
 def gen_noti_chime():
@@ -315,13 +315,12 @@ def gen_noti_alert():
 
 def wav_to_h():
     files = [
-        'sound_dingdong.wav', 'sound_trill.wav', 'sound_sweep.wav', 'sound_beep.wav', 'sound_chime.wav',
-        'sound_siren.wav', 'sound_doorbell.wav', 'sound_notification.wav', 'sound_error.wav', 'sound_success.wav',
+        'sound_dingdong.wav', 'sound_trill.wav', 'sound_sweep.wav', 'sound_chime.wav',
+        'sound_doorbell.wav', 'sound_success.wav',
         'sound_washing_machine.wav', 'sound_mail_delivered.wav', 'sound_window_open.wav', 'sound_pre_alarm.wav', 'sound_access_granted.wav',
         'sound_noti_chime.wav', 'sound_noti_bloop.wav', 'sound_noti_pop.wav', 'sound_noti_sparkle.wav', 'sound_level_up.wav',
         'sound_game_over.wav', 'sound_coin.wav', 'sound_noti_alert.wav', 'sound_glass_ping.wav', 'sound_elevator_ding.wav',
-        'sound_arcade_start.wav', 'sound_sci_fi_alert.wav', 'sound_soft_bell.wav', 'sound_magic_sparkle.wav', 'sound_bass_drop.wav',
-
+        'sound_soft_bell.wav', 'sound_magic_sparkle.wav',
         'sound_tts_essen.wav', 'sound_tts_waschmaschine.wav', 'sound_tts_trockner.wav',
         'sound_tts_post.wav', 'sound_tts_muell_schwarz.wav',
         'sound_tts_muell_gruen.wav', 'sound_tts_muell_gelb.wav', 'sound_tts_glas.wav',
@@ -343,12 +342,8 @@ if __name__ == "__main__":
     gen_dingdong()
     gen_trill()
     gen_sweep()
-    gen_beep()
     gen_chime()
-    gen_siren()
     gen_doorbell()
-    gen_notification()
-    gen_error()
     gen_success()
     gen_washing_machine()
     gen_mail_delivered()
@@ -360,11 +355,8 @@ if __name__ == "__main__":
     gen_coin()
     gen_glass_ping()
     gen_elevator_ding()
-    gen_arcade_start()
-    gen_sci_fi_alert()
     gen_soft_bell()
     gen_magic_sparkle()
-    gen_bass_drop()
     gen_noti_chime()
     gen_noti_bloop()
     gen_noti_pop()
