@@ -163,7 +163,7 @@ async def to_code(config):
         "TTS: Essen ist Fertig", "TTS: Waschmaschine ist fertig", "TTS: Trockner ist fertig",
         "TTS: Post ist da", "TTS: Schwarze Mülltonne muss raus",
         "TTS: Grüne Mülltonne muss raus", "TTS: Gelbe Mülltonne muss raus", "TTS: Glas muss raus",
-        "TTS: Zähne putzen"
+
     ]
 
 

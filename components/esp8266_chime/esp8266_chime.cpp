@@ -318,9 +318,6 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   } else if (selected == "TTS: Glas muss raus") {
     this->current_data_ = sound_tts_glas;
     this->current_len_ = sound_tts_glas_len;
-  } else if (selected == "TTS: Zähne putzen") {
-    this->current_data_ = sound_tts_zaehne;
-    this->current_len_ = sound_tts_zaehne_len;
 
   } else {
     ESP_LOGE(TAG, "Unknown sound selected: %s", selected.c_str());
