@@ -117,6 +117,7 @@ class Esp8266Chime : public Component {
   const unsigned char *current_data_{nullptr};
   unsigned int current_len_{0};
   unsigned int current_pos_{0};
+  bool current_is_8bit_{false};
 
   void play_internal(const std::string& sound_name);
 };
