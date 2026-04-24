@@ -78,19 +78,11 @@ void Esp8266Chime::loop() {
     if (this->current_data_ != nullptr && this->current_pos_ < this->current_len_) {
       // Feed I2S FIFO as much as possible without blocking
       while (this->current_pos_ < this->current_len_) {
-        int16_t sample = 0;
-        if (this->current_is_8bit_) {
-            // Read 8-bit unsigned sample from PROGMEM, convert to 16-bit signed
-            uint8_t sample8 = pgm_read_byte(&this->current_data_[this->current_pos_]);
-            // 8-bit WAV is unsigned (0-255) with silence at 128
-            sample = (int16_t)((sample8 - 128) * 256);
-        } else {
-            // Read 16-bit sample from PROGMEM
-            sample = (int16_t)(
-                pgm_read_byte(&this->current_data_[this->current_pos_]) |
-                (pgm_read_byte(&this->current_data_[this->current_pos_ + 1]) << 8)
-            );
-        }
+        // Read 16-bit sample from PROGMEM
+        int16_t sample = (int16_t)(
+            pgm_read_byte(&this->current_data_[this->current_pos_]) |
+            (pgm_read_byte(&this->current_data_[this->current_pos_ + 1]) << 8)
+        );
 
         // Apply volume
         sample = (int16_t)(sample * this->current_volume_);
@@ -100,7 +92,13 @@ void Esp8266Chime::loop() {
         uint32_t stereo_sample = ((uint32_t)(uint16_t)sample << 16) | (uint16_t)sample;
         // ESP8266 i2s_write_sample_nb returns true if it fits in the buffer
         if (i2s_write_sample_nb(stereo_sample)) {
-            this->current_pos_ += (this->current_is_8bit_ ? 1 : 2);
+            if (this->current_is_4000hz_) {
+                // To play 4000Hz at 8000Hz I2S, write the same sample a second time
+                while (!i2s_write_sample_nb(stereo_sample)) {
+                    yield(); // Wait until buffer has space for the duplicate
+                }
+            }
+            this->current_pos_ += 2;
         } else {
             // Buffer full, come back next loop
             break;
@@ -211,9 +209,7 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   this->current_data_ = nullptr;
   this->current_len_ = 0;
   this->current_pos_ = 0;
-  this->current_is_8bit_ = false;
-
-  this->current_is_8bit_ = (selected.find("TTS") != std::string::npos);
+  this->current_is_4000hz_ = (selected.find("TTS") != std::string::npos);
 
   if (selected == "1. Ding Dong") {
     this->current_data_ = sound_dingdong;
@@ -346,7 +342,7 @@ void Esp8266Chime::stop() {
   this->current_data_ = nullptr;
   this->current_len_ = 0;
   this->current_pos_ = 0;
-  this->current_is_8bit_ = false;
+  this->current_is_4000hz_ = false;
 
   if (this->sd_pin_ != nullptr) {
     this->sd_pin_->digital_write(true); // HIGH = mute amplifier
