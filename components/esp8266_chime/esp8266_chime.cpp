@@ -213,6 +213,8 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   this->current_pos_ = 0;
   this->current_is_8bit_ = false;
 
+  this->current_is_8bit_ = (selected.find("TTS") != std::string::npos);
+
   if (selected == "1. Ding Dong") {
     this->current_data_ = sound_dingdong;
     this->current_len_ = sound_dingdong_len;
@@ -222,24 +224,12 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   } else if (selected == "3. Sweep Sound") {
     this->current_data_ = sound_sweep;
     this->current_len_ = sound_sweep_len;
-  } else if (selected == "4. Solid Beep") {
-    this->current_data_ = sound_beep;
-    this->current_len_ = sound_beep_len;
   } else if (selected == "5. G5 Chime") {
     this->current_data_ = sound_chime;
     this->current_len_ = sound_chime_len;
-  } else if (selected == "6. Siren") {
-    this->current_data_ = sound_siren;
-    this->current_len_ = sound_siren_len;
   } else if (selected == "7. Doorbell") {
     this->current_data_ = sound_doorbell;
     this->current_len_ = sound_doorbell_len;
-  } else if (selected == "8. Notification") {
-    this->current_data_ = sound_notification;
-    this->current_len_ = sound_notification_len;
-  } else if (selected == "9. Error") {
-    this->current_data_ = sound_error;
-    this->current_len_ = sound_error_len;
   } else if (selected == "10. Success") {
     this->current_data_ = sound_success;
     this->current_len_ = sound_success_len;
@@ -288,22 +278,13 @@ void Esp8266Chime::play_internal(const std::string& selected) {
   } else if (selected == "25. Elevator Ding") {
     this->current_data_ = sound_elevator_ding;
     this->current_len_ = sound_elevator_ding_len;
-  } else if (selected == "26. Arcade Start") {
-    this->current_data_ = sound_arcade_start;
-    this->current_len_ = sound_arcade_start_len;
-  } else if (selected == "27. Sci Fi Alert") {
-    this->current_data_ = sound_sci_fi_alert;
-    this->current_len_ = sound_sci_fi_alert_len;
   } else if (selected == "28. Soft Bell") {
     this->current_data_ = sound_soft_bell;
     this->current_len_ = sound_soft_bell_len;
   } else if (selected == "29. Magic Sparkle") {
     this->current_data_ = sound_magic_sparkle;
     this->current_len_ = sound_magic_sparkle_len;
-  } else if (selected == "30. Bass Drop") {
-    this->current_data_ = sound_bass_drop;
-    this->current_len_ = sound_bass_drop_len;
-    this->current_is_8bit_ = (selected.find("TTS") != std::string::npos);
+
 
 } else if (selected == "TTS: Essen ist Fertig") {
     this->current_data_ = sound_tts_essen;
