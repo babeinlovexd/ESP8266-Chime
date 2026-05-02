@@ -83,7 +83,6 @@ main_addition = """    gen_noti_chime()
 content = content.replace("    wav_to_h()", main_addition + "    wav_to_h()")
 
 # Add to files list - reconstruct it cleanly to avoid mess
-import re
 files_pattern = re.compile(r"files = \[\n.*?\]", re.DOTALL)
 new_files_list = """files = [
         'sound_dingdong.wav', 'sound_trill.wav', 'sound_sweep.wav', 'sound_beep.wav', 'sound_chime.wav',
