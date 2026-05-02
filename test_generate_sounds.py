@@ -2,7 +2,8 @@ import wave
 import struct
 import os
 import pytest
-from generate_sounds import generate_wav
+from unittest.mock import patch
+from generate_sounds import generate_wav, gen_doorbell
 
 def test_generate_wav(tmp_path):
     filename = str(tmp_path / "test.wav")
@@ -45,3 +46,12 @@ def test_generate_wav_custom_rate(tmp_path):
 
     with wave.open(filename, 'r') as wav_file:
         assert wav_file.getframerate() == sample_rate
+
+def test_gen_doorbell():
+    with patch('generate_sounds.generate_wav') as mock_generate_wav:
+        gen_doorbell()
+        mock_generate_wav.assert_called_once()
+        args, _ = mock_generate_wav.call_args
+        assert args[0] == 'sound_doorbell.wav'
+        # int(8000 * 0.4) + int(8000 * 0.8) = 3200 + 6400 = 9600
+        assert len(args[1]) == 9600
