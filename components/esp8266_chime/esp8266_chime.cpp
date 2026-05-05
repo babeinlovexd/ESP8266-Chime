@@ -2,8 +2,8 @@
 #include "esphome/core/log.h"
 #include "sounds.h"
 #include <Arduino.h>
-#include <i2s_reg.h>
 #ifdef USE_ESP8266
+#include <i2s_reg.h>
 #include "eagle_soc.h"
 #endif
 
@@ -33,6 +33,10 @@ void Esp8266Chime::setup() {
     // Fix for PT8211 (Japanese Format LSBJ)
     // Clears the I2S_TRANS_MSB_SHIFT bit to disable the default Philips format
     CLEAR_PERI_REG_MASK(I2SCONF, I2S_TRANS_MSB_SHIFT);
+  } else {
+    // Default to Philips format
+    // Sets the I2S_TRANS_MSB_SHIFT bit to enable Philips format
+    SET_PERI_REG_MASK(I2SCONF, I2S_TRANS_MSB_SHIFT);
   }
 #endif
 }
