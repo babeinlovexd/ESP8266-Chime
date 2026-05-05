@@ -184,16 +184,16 @@ def wav_to_h():
 
     ]
 
-    out = "#pragma once\n#include <pgmspace.h>\n\n"
+    fragments = ["#pragma once\n#include <pgmspace.h>\n\n"]
     for f in files:
         with open(f, 'rb') as w:
             data = w.read()
         name = f.replace('.wav', '')
-        out += f"const unsigned char {name}[] PROGMEM = {{\n"
-        out += ", ".join([f"0x{b:02x}" for b in data])
-        out += f"\n}};\nconst unsigned int {name}_len = {len(data)};\n\n"
+        fragments.append(f"const unsigned char {name}[] PROGMEM = {{\n")
+        fragments.append(", ".join([f"0x{b:02x}" for b in data]))
+        fragments.append(f"\n}};\nconst unsigned int {name}_len = {len(data)};\n\n")
     with open('sounds.h', 'w') as out_f:
-        out_f.write(out)
+        out_f.write("".join(fragments))
 
 if __name__ == "__main__":
     gen_dingdong()
