@@ -3,7 +3,7 @@ import struct
 import os
 import pytest
 from unittest.mock import patch
-from generate_sounds import generate_wav, gen_doorbell, gen_trill
+from generate_sounds import generate_wav, gen_doorbell, gen_trill, gen_elevator_ding
 
 def test_generate_wav(tmp_path):
     filename = str(tmp_path / "test.wav")
@@ -63,4 +63,13 @@ def test_gen_trill():
         args, _ = mock_generate_wav.call_args
         assert args[0] == 'sound_trill.wav'
         # int(8000 * 1.0) = 8000
+        assert len(args[1]) == 8000
+
+def test_gen_elevator_ding():
+    with patch('generate_sounds.generate_wav') as mock_generate_wav:
+        gen_elevator_ding()
+        mock_generate_wav.assert_called_once()
+        args, _ = mock_generate_wav.call_args
+        assert args[0] == 'sound_elevator_ding.wav'
+        # int(8000 * 0.4) + int(8000 * 0.6) = 3200 + 4800 = 8000
         assert len(args[1]) == 8000
