@@ -113,6 +113,7 @@ class Esp8266Chime : public Component {
   int target_reps_{0};
   std::string current_sound_{""};
   float current_volume_{1.0};
+  uint32_t volume_int_{32768};
 
   const unsigned char *current_data_{nullptr};
   unsigned int current_len_{0};

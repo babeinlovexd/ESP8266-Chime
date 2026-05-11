@@ -89,7 +89,7 @@ void Esp8266Chime::loop() {
         );
 
         // Apply volume
-        sample = (int16_t)(sample * this->current_volume_);
+        sample = (int16_t)((sample * (int32_t)this->volume_int_) >> 15);
 
         // The DAC PT8211 needs stereo data, so we combine L and R into one 32-bit sample
         // Left channel in lower 16 bits, Right channel in upper 16 bits.
@@ -324,6 +324,7 @@ void Esp8266Chime::stop() {
 
 void Esp8266Chime::set_volume(float volume) {
   this->current_volume_ = volume;
+  this->volume_int_ = (uint32_t)(volume * 32768.0f);
 }
 
 
