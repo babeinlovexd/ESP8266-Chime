@@ -70,11 +70,6 @@ def gen_doorbell():
 
 
 
-import random
-
-
-
-
 def gen_pre_alarm():
     sr = 8000
     samples = []
