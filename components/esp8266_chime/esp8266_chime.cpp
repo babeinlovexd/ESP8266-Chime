@@ -79,9 +79,9 @@ void Esp8266Chime::loop() {
   }
 
   if (this->state_ == ChimeState::PLAYING_CHIME || this->state_ == ChimeState::PLAYING_ALARM || this->state_ == ChimeState::PLAYING_NOTIFY) {
-    if (this->current_data_ != nullptr && this->current_pos_ < this->current_len_) {
+    if (this->current_data_ != nullptr && this->current_pos_ + 1 < this->current_len_) {
       // Feed I2S FIFO as much as possible without blocking
-      while (this->current_pos_ < this->current_len_) {
+      while (this->current_pos_ + 1 < this->current_len_) {
         // Read 16-bit sample from PROGMEM
         int16_t sample = (int16_t)(
             pgm_read_byte(&this->current_data_[this->current_pos_]) |
@@ -103,7 +103,7 @@ void Esp8266Chime::loop() {
         }
       }
 
-      if (this->current_pos_ >= this->current_len_) {
+      if (this->current_pos_ + 1 >= this->current_len_) {
         // Sound finished
         if (this->state_ == ChimeState::PLAYING_CHIME) {
           this->current_rep_++;
