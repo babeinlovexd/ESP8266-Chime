@@ -50,9 +50,12 @@ void Esp8266Chime::loop() {
 
       // Nur blinken, wenn wir innerhalb der eingestellten Zeit sind und ein Sound getriggert wurde (play_start_time_ > 0)
       if (this->play_start_time_ > 0 && now - this->play_start_time_ < (duration_s * 1000)) {
-        uint32_t interval = 900; // low
-        if (this->led_freq_ == LEDFrequency::LED_FREQ_MIDDLE) interval = 400;
-        if (this->led_freq_ == LEDFrequency::LED_FREQ_HIGH) interval = 150;
+        uint32_t interval = 900; // default low
+        if (this->led_frequenz_select_ != nullptr && this->led_frequenz_select_->has_state()) {
+          std::string freq_opt = std::string(this->led_frequenz_select_->current_option());
+          if (freq_opt == "middle") interval = 400;
+          else if (freq_opt == "high") interval = 150;
+        }
 
         if (now - this->last_led_toggle_ > interval) {
           this->led_state_ = !this->led_state_;
@@ -253,31 +256,30 @@ void Esp8266Chime::play_internal(const std::string& selected) {
     this->current_len_ = sound_magic_sparkle_len;
 
 
-} else if (selected == "TTS: Essen ist Fertig") {
+  } else if (selected == "TTS: Essen ist Fertig" || selected == "TTS: Food is ready") {
     this->current_data_ = sound_tts_essen;
     this->current_len_ = sound_tts_essen_len;
-  } else if (selected == "TTS: Waschmaschine ist fertig") {
+  } else if (selected == "TTS: Waschmaschine ist fertig" || selected == "TTS: Washing machine is done") {
     this->current_data_ = sound_tts_waschmaschine;
     this->current_len_ = sound_tts_waschmaschine_len;
-  } else if (selected == "TTS: Trockner ist fertig") {
+  } else if (selected == "TTS: Trockner ist fertig" || selected == "TTS: Dryer is done") {
     this->current_data_ = sound_tts_trockner;
     this->current_len_ = sound_tts_trockner_len;
-  } else if (selected == "TTS: Post ist da") {
+  } else if (selected == "TTS: Post ist da" || selected == "TTS: Mail has arrived") {
     this->current_data_ = sound_tts_post;
     this->current_len_ = sound_tts_post_len;
-  } else if (selected == "TTS: Schwarze Mülltonne muss raus") {
+  } else if (selected == "TTS: Schwarze Mülltonne muss raus" || selected == "TTS: Black bin needs to go out") {
     this->current_data_ = sound_tts_muell_schwarz;
     this->current_len_ = sound_tts_muell_schwarz_len;
-  } else if (selected == "TTS: Grüne Mülltonne muss raus") {
+  } else if (selected == "TTS: Grüne Mülltonne muss raus" || selected == "TTS: Green bin needs to go out") {
     this->current_data_ = sound_tts_muell_gruen;
     this->current_len_ = sound_tts_muell_gruen_len;
-  } else if (selected == "TTS: Gelbe Mülltonne muss raus") {
+  } else if (selected == "TTS: Gelbe Mülltonne muss raus" || selected == "TTS: Yellow bin needs to go out") {
     this->current_data_ = sound_tts_muell_gelb;
     this->current_len_ = sound_tts_muell_gelb_len;
-  } else if (selected == "TTS: Glas muss raus") {
+  } else if (selected == "TTS: Glas muss raus" || selected == "TTS: Glass needs to go out") {
     this->current_data_ = sound_tts_glas;
     this->current_len_ = sound_tts_glas_len;
-
   } else {
     ESP_LOGE(TAG, "Unknown sound selected: %s", selected.c_str());
     this->state_ = ChimeState::IDLE;
@@ -470,6 +472,31 @@ void Esp8266LedDurationNumber::setup() {
 void Esp8266LedDurationNumber::control(float value) {
   this->publish_state(value);
   this->pref_.save(&value);
+}
+
+void Esp8266LedFrequenzSelect::setup() {
+  uint32_t hash = this->get_object_id_hash();
+  this->pref_ = global_preferences->make_preference<size_t>(hash);
+  size_t index;
+  if (this->pref_.load(&index)) {
+    if (index < this->traits.get_options().size()) {
+      this->publish_state(this->traits.get_options()[index]);
+    } else {
+      this->publish_state(this->traits.get_options()[0]);
+    }
+  } else {
+    this->publish_state(this->traits.get_options()[0]);
+  }
+}
+
+void Esp8266LedFrequenzSelect::control(const std::string &value) {
+  this->publish_state(value);
+  const auto &options = this->traits.get_options();
+  auto it = std::find(options.begin(), options.end(), value);
+  if (it != options.end()) {
+    size_t index = std::distance(options.begin(), it);
+    this->pref_.save(&index);
+  }
 }
 
 void Esp8266LedEnableSwitch::setup() {
