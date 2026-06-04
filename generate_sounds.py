@@ -173,10 +173,12 @@ def wav_to_h():
         'sound_noti_chime.wav', 'sound_noti_bloop.wav', 'sound_level_up.wav',
         'sound_coin.wav', 'sound_glass_ping.wav', 'sound_elevator_ding.wav',
         'sound_soft_bell.wav', 'sound_magic_sparkle.wav',
-        'sound_tts_essen.wav', 'sound_tts_waschmaschine.wav', 'sound_tts_trockner.wav',
-        'sound_tts_post.wav', 'sound_tts_muell_schwarz.wav',
-        'sound_tts_muell_gruen.wav', 'sound_tts_muell_gelb.wav', 'sound_tts_glas.wav',
+    ]
 
+    tts_files = [
+        'sound_tts_essen', 'sound_tts_waschmaschine', 'sound_tts_trockner',
+        'sound_tts_post', 'sound_tts_muell_schwarz',
+        'sound_tts_muell_gruen', 'sound_tts_muell_gelb', 'sound_tts_glas'
     ]
 
     fragments = ["#pragma once\n#include <pgmspace.h>\n\n"]
@@ -187,6 +189,29 @@ def wav_to_h():
         fragments.append(f"const unsigned char {name}[] PROGMEM = {{\n")
         fragments.append(", ".join([f"0x{b:02x}" for b in data]))
         fragments.append(f"\n}};\nconst unsigned int {name}_len = {len(data)};\n\n")
+
+    fragments.append("#ifdef USE_LANG_EN\n\n")
+    for base in tts_files:
+        f = f"{base}_en.wav"
+        with open(f, 'rb') as w:
+            data = w.read()
+        name = base
+        fragments.append(f"const unsigned char {name}[] PROGMEM = {{\n")
+        fragments.append(", ".join([f"0x{b:02x}" for b in data]))
+        fragments.append(f"\n}};\nconst unsigned int {name}_len = {len(data)};\n\n")
+
+    fragments.append("#else // USE_LANG_EN\n\n")
+    for base in tts_files:
+        f = f"{base}_de.wav"
+        with open(f, 'rb') as w:
+            data = w.read()
+        name = base
+        fragments.append(f"const unsigned char {name}[] PROGMEM = {{\n")
+        fragments.append(", ".join([f"0x{b:02x}" for b in data]))
+        fragments.append(f"\n}};\nconst unsigned int {name}_len = {len(data)};\n\n")
+
+    fragments.append("#endif // USE_LANG_EN\n\n")
+
     with open('sounds.h', 'w') as out_f:
         out_f.write("".join(fragments))
 

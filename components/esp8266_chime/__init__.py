@@ -15,6 +15,7 @@ CONF_WS = "ws"
 CONF_DOUT = "dout"
 CONF_SD = "sd"
 CONF_I2S_FORMAT = "i2s_format"
+CONF_LANGUAGE = "language"
 
 CONF_LED = "led"
 CONF_OUT = "out"
@@ -55,6 +56,7 @@ Esp8266NotifyPlayButton = esp8266_chime_ns.class_("Esp8266NotifyPlayButton", but
 
 Esp8266LedDurationNumber = esp8266_chime_ns.class_("Esp8266LedDurationNumber", number.Number, cg.Component)
 Esp8266LedEnableSwitch = esp8266_chime_ns.class_("Esp8266LedEnableSwitch", switch.Switch, cg.Component)
+Esp8266LedFrequenzSelect = esp8266_chime_ns.class_("Esp8266LedFrequenzSelect", select.Select, cg.Component)
 Esp8266ChimeMuteSwitch = esp8266_chime_ns.class_("Esp8266ChimeMuteSwitch", switch.Switch, cg.Component)
 
 I2SFormat = esp8266_chime_ns.enum("I2SFormat")
@@ -72,7 +74,7 @@ LED_FREQUENZ_OPTIONS = {
 
 LED_SCHEMA = cv.Schema({
     cv.Required(CONF_OUT): pins.gpio_output_pin_schema,
-    cv.Optional(CONF_FREQUENZ, default="low"): cv.enum(LED_FREQUENZ_OPTIONS, lower=True),
+    cv.Optional(CONF_FREQUENZ, default={"name": "LED Frequenz"}): select.select_schema(Esp8266LedFrequenzSelect).extend(cv.COMPONENT_SCHEMA),
     cv.Optional(CONF_LED_DURATION, default={"name": "LED Blinkdauer"}): number.number_schema(Esp8266LedDurationNumber).extend(cv.COMPONENT_SCHEMA),
     cv.Optional(CONF_LED_ACTIVATION, default={"name": "LED Aktivieren"}): switch.switch_schema(Esp8266LedEnableSwitch).extend(cv.COMPONENT_SCHEMA),
 })
@@ -85,6 +87,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Required(CONF_DOUT): pins.internal_gpio_output_pin_schema,
         cv.Required(CONF_SD): pins.gpio_output_pin_schema,
         cv.Optional(CONF_I2S_FORMAT, default="PHILIPS"): cv.enum(I2S_FORMAT_OPTIONS, upper=True),
+        cv.Optional(CONF_LANGUAGE, default="de"): cv.one_of("de", "en", lower=True),
 
         cv.Optional(CONF_CHIME_VOLUME, default={"name": "Chime Lautstärke"}): number.number_schema(Esp8266ChimeVolumeNumber).extend(cv.COMPONENT_SCHEMA),
         cv.Optional(CONF_CHIME_REPS, default={"name": "Chime Wiederholungen"}): number.number_schema(Esp8266ChimeRepsNumber).extend(cv.COMPONENT_SCHEMA),
@@ -151,26 +154,39 @@ async def to_code(config):
     cg.add(n_var.set_parent(var))
     cg.add(var.set_alarm_volume_number(n_var))
 
+    if config[CONF_LANGUAGE] == "en":
+        cg.add_build_flag("-DUSE_LANG_EN")
+
     # Select Entities
-    options = [
-        "1. Ding Dong", "2. Trill Alarm", "3. Sweep Sound", "4. G5 Chime", "5. Doorbell", "6. Pre Alarm", "7. Notification Chime", "8. Notification Bloop", "9. Level Up", "10. Coin", "11. Glass Ping", "12. Elevator Ding", "13. Soft Bell", "14. Magic Sparkle",
-        "TTS: Essen ist Fertig", "TTS: Waschmaschine ist fertig", "TTS: Trockner ist fertig",
-        "TTS: Post ist da", "TTS: Schwarze Mülltonne muss raus",
-        "TTS: Grüne Mülltonne muss raus", "TTS: Gelbe Mülltonne muss raus", "TTS: Glas muss raus"
+    base_options = [
+        "1. Ding Dong", "2. Trill Alarm", "3. Sweep Sound", "4. G5 Chime", "5. Doorbell", "6. Pre Alarm", "7. Notification Chime", "8. Notification Bloop", "9. Level Up", "10. Coin", "11. Glass Ping", "12. Elevator Ding", "13. Soft Bell", "14. Magic Sparkle"
     ]
+
+    if config[CONF_LANGUAGE] == "en":
+        tts_options = [
+            "TTS: Food is ready", "TTS: Washing machine is done", "TTS: Dryer is done",
+            "TTS: Mail has arrived", "TTS: Black bin needs to go out",
+            "TTS: Green bin needs to go out", "TTS: Yellow bin needs to go out", "TTS: Glass needs to go out"
+        ]
+    else:
+        tts_options = [
+            "TTS: Essen ist Fertig", "TTS: Waschmaschine ist fertig", "TTS: Trockner ist fertig",
+            "TTS: Post ist da", "TTS: Schwarze Mülltonne muss raus",
+            "TTS: Grüne Mülltonne muss raus", "TTS: Gelbe Mülltonne muss raus", "TTS: Glas muss raus"
+        ]
 
 
     conf = config[CONF_CHIME_SOUND]
     s_var = cg.new_Pvariable(conf[CONF_ID])
     await cg.register_component(s_var, conf)
-    await select.register_select(s_var, conf, options=options)
+    await select.register_select(s_var, conf, options=base_options)
     cg.add(s_var.set_parent(var))
     cg.add(var.set_chime_sound_select(s_var))
 
     conf = config[CONF_ALARM_SOUND]
     s_var = cg.new_Pvariable(conf[CONF_ID])
     await cg.register_component(s_var, conf)
-    await select.register_select(s_var, conf, options=options)
+    await select.register_select(s_var, conf, options=base_options)
     cg.add(s_var.set_parent(var))
     cg.add(var.set_alarm_sound_select(s_var))
 
@@ -193,7 +209,7 @@ async def to_code(config):
     conf = config[CONF_NOTIFY_SOUND]
     s_var = cg.new_Pvariable(conf[CONF_ID])
     await cg.register_component(s_var, conf)
-    await select.register_select(s_var, conf, options=options)
+    await select.register_select(s_var, conf, options=tts_options)
     cg.add(s_var.set_parent(var))
     cg.add(var.set_notify_sound_select(s_var))
 
@@ -223,7 +239,13 @@ async def to_code(config):
         led_config = config[CONF_LED]
         led_pin = await cg.gpio_pin_expression(led_config[CONF_OUT])
         cg.add(var.set_led_pin(led_pin))
-        cg.add(var.set_led_frequenz(led_config[CONF_FREQUENZ]))
+
+        conf = led_config[CONF_FREQUENZ]
+        fs_var = cg.new_Pvariable(conf[CONF_ID])
+        await cg.register_component(fs_var, conf)
+        await select.register_select(fs_var, conf, options=["low", "middle", "high"])
+        cg.add(fs_var.set_parent(var))
+        cg.add(var.set_led_frequenz_select(fs_var))
 
         # Blinkdauer Slider (1-15s)
         conf = led_config[CONF_LED_DURATION]
