@@ -21,9 +21,11 @@ esp8266_chime:
   sd:
     number: GPIO12
     inverted: false
+  language: en
   led:
     out: GPIO14
-    frequenz: high
+    frequenz:
+      name: "LED Frequenz"
     duration:
       name: "LED Blinkdauer"
     activation:

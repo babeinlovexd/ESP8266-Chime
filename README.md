@@ -50,6 +50,7 @@ Sobald das Gerät geflasht und mit Home Assistant verbunden ist, werden folgende
 * **Sektion 4 (LED - optional):**
   12. `number`: "LED Blinkdauer" (Dauer in Sekunden).
   13. `switch`: "LED Aktivieren" (Aktiviert das Blinken).
+  14. `select`: "LED Frequenz" (Blinkgeschwindigkeit on-the-fly einstellen: low, middle, high).
 
 ---
 
@@ -92,6 +93,7 @@ esp8266_chime:
   ws: GPIO2
   dout: GPIO3
   i2s_format: LSBJ # Auswahl: PHILIPS oder LSBJ (Standard ist PHILIPS)
+  language: de # Auswahl: de oder en (Legt die Sprache der TTS Ansagen fest. Spart Speicherplatz!)
   sd:
     number: GPIO12
     inverted: false
@@ -103,7 +105,8 @@ esp8266_chime:
     name: "Notify Abspielen"
   led: # Optional
     out: GPIO14
-    frequenz: high # low (900ms), middle (400ms), high (150ms)
+    frequenz:
+      name: "LED Frequenz"
     duration:
       name: "LED Blinkdauer"
     activation:

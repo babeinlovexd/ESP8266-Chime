@@ -20,12 +20,6 @@ enum I2SFormat {
   I2S_FORMAT_LSBJ = 1
 };
 
-enum LEDFrequency {
-  LED_FREQ_LOW = 0,
-  LED_FREQ_MIDDLE = 1,
-  LED_FREQ_HIGH = 2
-};
-
 enum class ChimeState {
   IDLE,
   PLAYING_CHIME,
@@ -48,7 +42,7 @@ class Esp8266Chime : public Component {
   void set_i2s_format(I2SFormat format) { this->i2s_format_ = format; }
 
   void set_led_pin(GPIOPin *pin) { this->led_pin_ = pin; }
-  void set_led_frequenz(LEDFrequency freq) { this->led_freq_ = freq; }
+  void set_led_frequenz_select(select::Select *sel) { this->led_frequenz_select_ = sel; }
 
   void set_chime_volume_number(number::Number *num) { this->chime_volume_number_ = num; }
   void set_chime_reps_number(number::Number *num) { this->chime_reps_number_ = num; }
@@ -100,8 +94,8 @@ class Esp8266Chime : public Component {
 
   number::Number *led_duration_number_{nullptr};
   switch_::Switch *led_enable_switch_{nullptr};
+  select::Select *led_frequenz_select_{nullptr};
   GPIOPin *led_pin_{nullptr};
-  LEDFrequency led_freq_{LED_FREQ_LOW};
   uint32_t play_start_time_{0};
   uint32_t last_led_toggle_{0};
   bool led_state_{false};
@@ -226,6 +220,19 @@ class Esp8266LedDurationNumber : public number::Number, public Component {
   void control(float value) override;
   Esp8266Chime *parent_{nullptr};
 };
+
+class Esp8266LedFrequenzSelect : public select::Select, public Component {
+ public:
+  void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
+
+  void setup() override;
+ protected:
+  ESPPreferenceObject pref_;
+
+  void control(const std::string &value) override;
+  Esp8266Chime *parent_{nullptr};
+};
+
 
 class Esp8266LedEnableSwitch : public switch_::Switch, public Component {
  public:
