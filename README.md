@@ -77,7 +77,14 @@ logger:
 
 Die Einbindung in deiner YAML bleibt erfreulich minimalistisch. Binde die Komponente als `external_components` direkt aus dem offiziellen GitHub-Repository ein und füge lediglich folgenden Block hinzu:
 
+> **Wichtig für den Erhalt der Einstellungen nach einem Neustart:**
+> Füge `restore_from_flash: true` in deinem `esp8266:` Block hinzu, da ansonsten die Zustände der Entitäten nach einem Neustart des ESP8266 aus dem flüchtigen RTC-Speicher verloren gehen.
+
 ```yaml
+esp8266:
+  board: d1_mini
+  restore_from_flash: true
+
 logger:
   baud_rate: 0
 

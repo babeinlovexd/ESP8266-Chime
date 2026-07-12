@@ -334,7 +334,7 @@ void Esp8266Chime::set_volume(float volume) {
 
 void Esp8266ChimeVolumeNumber::setup() {
   float value;
-  this->pref_ = this->make_entity_preference<float>();
+  this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
   if (this->pref_.load(&value)) {
     this->publish_state(value);
   } else {
@@ -349,7 +349,7 @@ void Esp8266ChimeVolumeNumber::control(float value) {
 
 void Esp8266ChimeRepsNumber::setup() {
   float value;
-  this->pref_ = this->make_entity_preference<float>();
+  this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
   if (this->pref_.load(&value)) {
     this->publish_state(value);
   } else {
@@ -364,7 +364,7 @@ void Esp8266ChimeRepsNumber::control(float value) {
 
 void Esp8266ChimeSoundSelect::setup() {
   size_t index;
-  this->pref_ = this->make_entity_preference<size_t>();
+  this->pref_ = global_preferences->make_preference<size_t>(this->get_object_id_hash());
   if (this->pref_.load(&index) && index < this->traits.get_options().size()) {
     this->publish_state(this->traits.get_options()[index]);
   } else if (this->traits.get_options().size() > 0) {
@@ -390,7 +390,7 @@ void Esp8266ChimePlayButton::press_action() {
 
 void Esp8266AlarmVolumeNumber::setup() {
   float value;
-  this->pref_ = this->make_entity_preference<float>();
+  this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
   if (this->pref_.load(&value)) {
     this->publish_state(value);
   } else {
@@ -405,7 +405,7 @@ void Esp8266AlarmVolumeNumber::control(float value) {
 
 void Esp8266AlarmSoundSelect::setup() {
   size_t index;
-  this->pref_ = this->make_entity_preference<size_t>();
+  this->pref_ = global_preferences->make_preference<size_t>(this->get_object_id_hash());
   if (this->pref_.load(&index) && index < this->traits.get_options().size()) {
     this->publish_state(this->traits.get_options()[index]);
   } else if (this->traits.get_options().size() > 0) {
@@ -425,7 +425,7 @@ void Esp8266AlarmSoundSelect::control(const std::string &value) {
 
 void Esp8266AlarmLoopSwitch::setup() {
   bool state;
-  this->pref_ = this->make_entity_preference<bool>();
+  this->pref_ = global_preferences->make_preference<bool>(this->get_object_id_hash());
   if (this->pref_.load(&state)) {
     this->publish_state(state);
     if (this->parent_) {
@@ -446,7 +446,7 @@ void Esp8266AlarmLoopSwitch::write_state(bool state) {
 
 void Esp8266ChimeMuteSwitch::setup() {
   bool state;
-  this->pref_ = this->make_entity_preference<bool>();
+  this->pref_ = global_preferences->make_preference<bool>(this->get_object_id_hash());
   if (this->pref_.load(&state)) {
     this->publish_state(state);
   } else {
@@ -461,7 +461,7 @@ void Esp8266ChimeMuteSwitch::write_state(bool state) {
 
 void Esp8266LedDurationNumber::setup() {
   float value;
-  this->pref_ = this->make_entity_preference<float>();
+  this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
   if (this->pref_.load(&value)) {
     this->publish_state(value);
   } else {
@@ -476,7 +476,7 @@ void Esp8266LedDurationNumber::control(float value) {
 
 void Esp8266LedFrequenzSelect::setup() {
 
-  this->pref_ = this->make_entity_preference<size_t>();
+  this->pref_ = global_preferences->make_preference<size_t>(this->get_object_id_hash());
   size_t index;
   if (this->pref_.load(&index)) {
     if (index < this->traits.get_options().size()) {
@@ -501,7 +501,7 @@ void Esp8266LedFrequenzSelect::control(const std::string &value) {
 
 void Esp8266LedEnableSwitch::setup() {
   bool state;
-  this->pref_ = this->make_entity_preference<bool>();
+  this->pref_ = global_preferences->make_preference<bool>(this->get_object_id_hash());
   if (this->pref_.load(&state)) {
     this->publish_state(state);
   } else {
@@ -517,7 +517,7 @@ void Esp8266LedEnableSwitch::write_state(bool state) {
 
 void Esp8266NotifyVolumeNumber::setup() {
   float value;
-  this->pref_ = this->make_entity_preference<float>();
+  this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
   if (this->pref_.load(&value)) {
     this->publish_state(value);
   } else {
@@ -531,7 +531,7 @@ void Esp8266NotifyVolumeNumber::control(float value) {
 
 void Esp8266NotifySoundSelect::setup() {
   size_t index;
-  this->pref_ = this->make_entity_preference<size_t>();
+  this->pref_ = global_preferences->make_preference<size_t>(this->get_object_id_hash());
   if (this->pref_.load(&index) && index < this->traits.get_options().size()) {
     this->publish_state(this->traits.get_options()[index]);
   } else if (this->traits.get_options().size() > 0) {
