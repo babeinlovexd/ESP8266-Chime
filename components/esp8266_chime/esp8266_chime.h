@@ -31,6 +31,7 @@ class Esp8266Chime : public Component {
  public:
   Esp8266Chime() {}
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
   void loop() override;
 
@@ -120,6 +121,7 @@ class Esp8266ChimeVolumeNumber : public number::Number, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -132,6 +134,7 @@ class Esp8266ChimeRepsNumber : public number::Number, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -144,6 +147,7 @@ class Esp8266ChimeSoundSelect : public select::Select, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -165,6 +169,7 @@ class Esp8266AlarmVolumeNumber : public number::Number, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -177,6 +182,7 @@ class Esp8266AlarmSoundSelect : public select::Select, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -189,6 +195,7 @@ class Esp8266AlarmLoopSwitch : public switch_::Switch, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -201,6 +208,7 @@ class Esp8266ChimeMuteSwitch : public switch_::Switch, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -213,6 +221,7 @@ class Esp8266LedDurationNumber : public number::Number, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -225,6 +234,7 @@ class Esp8266LedFrequenzSelect : public select::Select, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -238,6 +248,7 @@ class Esp8266LedEnableSwitch : public switch_::Switch, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
 
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -250,6 +261,7 @@ class Esp8266LedEnableSwitch : public switch_::Switch, public Component {
 class Esp8266NotifyVolumeNumber : public number::Number, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
@@ -260,6 +272,7 @@ class Esp8266NotifyVolumeNumber : public number::Number, public Component {
 class Esp8266NotifySoundSelect : public select::Select, public Component {
  public:
   void set_parent(Esp8266Chime *parent) { this->parent_ = parent; }
+  float get_setup_priority() const override { return setup_priority::LATE; }
   void setup() override;
  protected:
   ESPPreferenceObject pref_;
