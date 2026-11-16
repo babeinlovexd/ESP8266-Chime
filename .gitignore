@@ -17,3 +17,6 @@ build/
 /.esphome/
 /secrets.yaml
 esphome-2023.12.0/
+
+# Local build verification and CI staging
+release-output/
